@@ -41,7 +41,7 @@ function main() {
     while (!WindowShouldClose()) {
         const dT = GetFrameTime();
 
-        scarfyPos.y += velocity * dT;
+        scarfyPos.y += velocity * dT; // Only once per frame
 
         BeginDrawing();
         ClearBackground(WHITE);
@@ -49,6 +49,7 @@ function main() {
         if (scarfyPos.y >= windowHeight - scarfyRec.height) {
             velocity = 0;
             isInAir = false;
+            scarfyPos.y = windowHeight - scarfyRec.height; // Clamp to ground
         } else {
             velocity += gravity * dT;
             isInAir = true;
@@ -59,8 +60,6 @@ function main() {
         }
 
         nebPos.x += nebVel * dT;
-
-        scarfyPos.y += velocity * dT;
 
         if (!isInAir) {
             runningTime += dT;
