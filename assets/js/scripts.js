@@ -386,7 +386,16 @@ function checkFrameHit() {
 }
 
 function checkBuildingHit() {
-  // ...
+  for (let i = 0; i < state.buildings.length; i++) {
+    const building = state.buildings[i];
+    if (
+      state.bomb.x + 4 > building.x &&
+      state.bomb.x - 4 < building.x + building.width &&
+      state.bomb.y - 4 < 0 + building.height
+    ) {
+      return true; // Building hit
+    }
+  }
 }
 
 function checkGorillaHit() {
