@@ -1,38 +1,27 @@
-// The state of the game
-let state = {};
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+canvas.width = 800;
+canvas.height = 400;
 
-// Start a new game on load
-newGame();
+let buildings = [];
+let playerIndex = 0;
+let gorillas = [];
+let banana = null;
+let gameOver = false;
 
-function newGame() {
-  // Initialize game state
-  state = {
-    phase: "aiming", // aiming | in flight | celebrating
-    currentPlayer: 1,
-    bomb: {
-      x: undefined,
-      y: undefined,
-      velocity: { x: 0, y: 0 },
-    },
-    buildings: generateBuildings(),
-  };
-
-  initializeBombPosition();
-  draw();
-}
-
+// Generate cityscape
 function generateBuildings() {
   const buildings = [];
   for (let index = 0; index < 8; index++) {
     const previousBuilding = buildings[index - 1];
 
     const x = previousBuilding
-      ? previousBuilding.x + previousBuilding.width + 4
+      ? previousBuilding.x + previousBuilding.w + 4
       : 0;
 
     const minWidth = 80;
     const maxWidth = 130;
-    const width = minWidth + Math.random() * (maxWidth - minWidth);
+    const w = minWidth + Math.random() * (maxWidth - minWidth);
 
     const platformWithGorilla = index === 1 || index === 6;
 
@@ -41,189 +30,151 @@ function generateBuildings() {
     const minHeightGorilla = 30;
     const maxHeightGorilla = 150;
 
-    const height = platformWithGorilla
+    const h = platformWithGorilla
       ? minHeightGorilla + Math.random() * (maxHeightGorilla - minHeightGorilla)
       : minHeight + Math.random() * (maxHeight - minHeight);
 
-    buildings.push({ x, width, height });
+    // Y coordinate should be from the bottom of the canvas
+    const y = canvas.height - h;
+
+    buildings.push({ x, w, y, h });
   }
   return buildings;
 }
 
-function initializeBombPosition() {
-  // TODO: Set initial bomb position based on current player and buildings
-}
 
-function draw() {
-  const canvas = document.getElementById("game");
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const ctx = canvas.getContext("2d");
-
-  ctx.save();
-  // Flip coordinate system upside down
-  ctx.translate(0, window.innerHeight);
-  ctx.scale(1, -1);
-
-  drawBackground(ctx);
-  drawBuildings(ctx);
-  drawGorilla(ctx, 1);
-  drawGorilla(ctx, 2);
-  // drawBomb(ctx);
-
-  ctx.restore();
-}
-
-function drawBackground(ctx) {
-  ctx.fillStyle = "#58A8D8";
-  ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-}
-
-function drawBuildings(ctx) {
-  state.buildings.forEach((building) => {
+// Draw background and buildings
+function drawScene() {
+state.buildings.forEach((building) => {
     ctx.fillStyle = "#152A47";
     ctx.fillRect(building.x, 0, building.width, building.height);
   });
 }
 
-function drawGorilla(ctx, player) {
-  ctx.save();
-  // Get the correct building for each player
-  const building =
-    player === 1
-      ? state.buildings.at[1] // Second building
-      : state.buildings.at[-2]; // Second to last building
-
-  
-  ctx.translate(
-    building.x + building.width / 2,
-    building.height
-  );
-
-  drawGorillaBody(ctx);
-  drawGorillaLeftArm(ctx, player);
-  drawGorillaRightArm(ctx, player);
-  drawGorillaFace(ctx);
-
-  ctx.restore();
+// Place gorillas
+function placeGorillas() {
+  gorillas = [];
+  [1, 6].forEach((i) => {
+    const b = buildings[i];
+    gorillas.push({
+      x: b.x + b.w / 2,
+      y: b.y - 10,
+      radius: 10,
+      buildingIndex: i,
+    });
+  });
 }
 
-function drawGorillaBody(ctx) {
-  ctx.fillStyle = "black";
+// Draw gorillas
+function drawGorillas() {
+  gorillas.forEach((g) => {
+    ctx.fillStyle = "brown";
+    ctx.beginPath();
+    ctx.arc(g.x, g.y, g.radius, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+// Throw banana
+function throwBanana(angle, velocity) {
+  const g = gorillas[playerIndex];
+  const rad = (angle * Math.PI) / 180;
+  banana = {
+    x: g.x,
+    y: g.y,
+    vx: velocity * Math.cos(rad),
+    vy: -velocity * Math.sin(rad),
+    t: 0,
+    startX: g.x,
+    startY: g.y,
+  };
+}
+
+// Animate banana
+function animateBanana() {
+  if (!banana) return;
+
+  banana.t += 0.1;
+  banana.x = banana.startX + banana.vx * banana.t;
+  banana.y =
+    banana.startY + banana.vy * banana.t + 0.5 * 9.81 * banana.t * banana.t;
+
+  draw();
+
+  ctx.fillStyle = "yellow";
   ctx.beginPath();
-
-  // Starting Position
-  ctx.moveTo(0, 15);
-
-  // Left Leg
-  ctx.lineTo(-7, 0);
-  ctx.lineTo(-20, 0);
-
-  // Main Body
-  ctx.lineTo(-13, 77);
-  ctx.lineTo(0, 84);
-  ctx.lineTo(13, 77);
-
-  // Right Leg
-  ctx.lineTo(20, 0);
-  ctx.lineTo(7, 0);
-
-  ctx.closePath();
+  ctx.arc(banana.x, banana.y, 5, 0, Math.PI * 2);
   ctx.fill();
-}
-
-function drawGorillaLeftArm(ctx, player) {
-  ctx.strokeStyle = "black";
-  ctx.lineWidth = 18;
-
-  ctx.beginPath();
-  ctx.moveTo(-13, 50);
 
   if (
-    (state.phase === "aiming" && state.currentPlayer === 1 && player === 1) ||
-    (state.phase === "celebrating" && state.currentPlayer === player)
+    banana.x < 0 ||
+    banana.x > canvas.width ||
+    banana.y > canvas.height ||
+    checkCollision(banana)
   ) {
-    ctx.quadraticCurveTo(-44, 63, -28, 107);
+    banana = null;
+    playerIndex = 1 - playerIndex;
   } else {
-    ctx.quadraticCurveTo(-44, 45, -28, 12);
+    requestAnimationFrame(animateBanana);
+  }
+}
+
+// Check for hits
+function checkCollision(b) {
+  for (let g of gorillas) {
+    const dx = b.x - g.x;
+    const dy = b.y - g.y;
+    if (Math.sqrt(dx * dx + dy * dy) < g.radius + 5) {
+      gameOver = true;
+      alert("Gorilla hit! Player " + (playerIndex + 1) + " wins!");
+      return true;
+    }
   }
 
-  ctx.stroke();
-}
-
-function drawGorillaRightArm(ctx, player) {
-  ctx.strokeStyle = "black";
-  ctx.lineWidth = 18;
-
-  ctx.beginPath();
-  ctx.moveTo(13, 50);
-
-  if (
-    (state.phase === "aiming" && state.currentPlayer === 2 && player === 2) ||
-    (state.phase === "celebrating" && state.currentPlayer === player)
-  ) {
-    ctx.quadraticCurveTo(44, 63, 28, 107);
-  } else {
-    ctx.quadraticCurveTo(44, 45, 28, 12);
+  for (let bld of buildings) {
+    if (
+      b.x > bld.x &&
+      b.x < bld.x + bld.w &&
+      b.y > bld.y &&
+      b.y < bld.y + bld.h
+    ) {
+      return true;
+    }
   }
 
-  ctx.stroke();
+  return false;
 }
 
-function drawGorillaFace(ctx) {
-  ctx.strokeStyle = "lightgray";
-  ctx.lineWidth = 3;
-
-  ctx.beginPath();
-
-  // Left Eye
-  ctx.moveTo(-5, 70);
-  ctx.lineTo(-2, 70);
-
-  // Right Eye
-  ctx.moveTo(2, 70);
-  ctx.lineTo(5, 70);
-
-  // Mouth
-  ctx.moveTo(-5, 62);
-  ctx.lineTo(5, 62);
-
-  ctx.stroke();
+// Redraw everything
+function draw() {
+  drawScene();
+  drawGorillas();
 }
 
-// Example: Draw a quadratic curve
-ctx.strokeStyle = "#58A8D8";
-ctx.lineWidth = 30;
-ctx.beginPath();
-ctx.moveTo(200, 300);
-ctx.quadraticCurveTo(500, 400, 800, 300);
-ctx.stroke();
+// Launch with click
+canvas.addEventListener("click", (e) => {
+  if (gameOver || banana) return;
 
-// Set the background color
-ctx.fillStyle = "#58A8D8";
-ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
 
-// filled polygon
-ctx.fillStyle = "#58A8D8";
-ctx.beginPath();
-ctx.moveTo(200, 200);
-ctx.lineTo(500, 350);
-ctx.lineTo(200, 500);
-ctx.closePath();
-ctx.fill();
+  const g = gorillas[playerIndex];
+  const dx = mouseX - g.x;
+  const dy = g.y - mouseY;
 
-// stroked polygon
-ctx.strokeStyle = "#58A8D8";
-ctx.lineWidth = 30;
-ctx.beginPath();
-ctx.moveTo(200, 200);
-ctx.lineTo(500, 350);
-ctx.lineTo(200, 500);
-ctx.closePath();
-ctx.stroke();
+  const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+  const velocity = Math.sqrt(dx * dx + dy * dy) / 5;
 
+  throwBanana(angle, velocity);
+  animateBanana();
+});
 
+// Start game
+function startGame() {
+  buildings = generateBuildings();
+  placeGorillas();
+  draw();
+}
 
-// TODO: Draw buildings, bomb, and other game elements
-// function throwBomb() { ... }
-// function animate(timestamp) { ... }
+startGame();
