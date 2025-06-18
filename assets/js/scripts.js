@@ -3,8 +3,10 @@ let state = {};
 // ...
 
 // References to HTML elements
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+const canvas = document.getElementById("game"); 
+canvas.width = window.innerWidth; 
+canvas.height = window.innerHeight; 
+const ctx = canvas.getContext("2d"); 
 
 // Left info panel
 const angle1DOM = document.querySelector("#info-left .angle");
@@ -54,17 +56,21 @@ function newGame() {
   draw();
 }
 
-function draw() {
-  ctx.save();
+function draw() { 
+  ctx.save(); 
+  // Flip coordinate system upside down 
+  ctx.translate(0, window.innerHeight); 
+  ctx.scale(1, -1); 
 
-  // Draw scene
-  drawBackground();
+  // Draw scene 
+  drawBackground(); 
   drawBuildings();
   drawGorilla(1);
   drawGorilla(2);
-  drawBomb();
+  drawBomb(); 
 
-  ctx.restore();
+  // Restore transformation 
+  ctx.restore(); 
 }
 
 function calculateScale() {
