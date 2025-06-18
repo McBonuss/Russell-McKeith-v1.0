@@ -17,7 +17,8 @@ const angle2DOM = document.querySelector("#info-right .angle");
 const velocity2DOM = document.querySelector("#info-right .velocity");
 
 // The bomb's grab area 
-const bombGrabAreaDOM = document.getElementById("congratulations");
+const bombGrabAreaDOM = document.getElementById("bomb-grab-area");
+const congratulationsDOM = document.getElementById("congratulations");
 const winnerDOM = document.getElementById("winner");
 const newGameButtonDOM = document.getElementById("new-game");
 // New Game Button
