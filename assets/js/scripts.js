@@ -215,6 +215,22 @@ function drawGorillaFace() {
   ctx.stroke();
 }
 function drawBomb() {
+  // Draw throwing trajectory
+  if (state.phase === "aiming") {
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.setLineDash([3, 8]);
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+    ctx.moveTo(state.bomb.x, state.bomb.y);
+    ctx.lineTo(
+      state.bomb.x + state.bomb.velocity.x,
+      state.bomb.y + state.bomb.velocity.y
+    );
+    ctx.stroke();
+  }
+
+  // Draw circle
   ctx.fillStyle = "white";
   ctx.beginPath();
   ctx.arc(state.bomb.x, state.bomb.y, 6, 0, 2 * Math.PI);
@@ -250,6 +266,7 @@ let isDragging = false;
 let dragStartX = undefined;
 let dragStartY = undefined;
 
+//mouse event handlers for the bomb grab area
 bombGrabAreaDOM.addEventListener("mousedown", function (e) {
   if (state.phase === "aiming") {
     isDragging = true;
@@ -273,11 +290,105 @@ window.addEventListener("mousemove", function (e) {
     draw();
   }
 });
+//is dragging is true when the mouse is down on the bomb grab area
+// and false when the mouse is up
+window.addEventListener("mouseup", function () {
+  if (isDragging) {
+    isDragging = false;
 
+    document.body.style.cursor = "default";
+
+    throwBomb();
+  }
+});
+
+// Used Velocity calculator online to calculate the angle and velocity, also quiried with copilot to check the maths
+function setInfo(deltaX, deltaY) {
+  const hypotenuse = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+  const angleInRadians = Math.asin(deltaY / hypotenuse);
+  const angleInDegrees = (angleInRadians / Math.PI) * 180;
+
+  if (state.currentPlayer === 1) {
+    angle1DOM.innerText = Math.round(angleInDegrees);
+    velocity1DOM.innerText = Math.round(hypotenuse);
+  } else {
+    angle2DOM.innerText = Math.round(angleInDegrees);
+    velocity2DOM.innerText = Math.round(hypotenuse);
+  }
+}
+
+let previousAnimationTimestamp = undefined;
+
+// Function to throw the bomb 
 function throwBomb() {
+  function throwBomb() {
+    state.phase = "in flight";
+    previousAnimationTimestamp = undefined;
+    requestAnimationFrame(animate);
+  }
+}
+// Function to move the bomb based on the elapsed time
+// This function will be called in the animation loop
+function moveBomb(elapsedTime) {
+  const multiplier = elapsedTime / 200; // Adjust trajectory by gravity
+
+  state.bomb.velocity.y -= 20 * multiplier; // Calculate new position
+
+  state.bomb.x += state.bomb.velocity.x * multiplier;
+  state.bomb.y += state.bomb.velocity.y * multiplier;
+}
+
+// Animation loop
+function animate(timestamp) {
+  if (!previousAnimationTimestamp) {
+    previousAnimationTimestamp = timestamp;
+    requestAnimationFrame(animate);
+    return;
+  }
+
+  const elapsedTime = timestamp - previousAnimationTimestamp;
+
+  const hitDetectionPrecision = 10;
+  for (let i = 0; i < hitDetectionPrecision; i++) {
+    moveBomb(elapsedTime / hitDetectionPrecision);
+
+    // Hit detection
+    const miss = checkFrameHit() || checkBuildingHit();
+    const hit = checkGorillaHit();
+
+    // Handle the case when we hit a building or the bomb got off-screen
+    if (miss) {
+      // ...
+      return;
+    }
+
+    // Handle the case when we hit the enemy
+    if (hit) {
+      // ...
+      return;
+    }
+  }
+
+  draw();
+
+  // Continue the animation loop
+  previousAnimationTimestamp = timestamp;
+  requestAnimationFrame(animate);
+}
+function checkFrameHit() {
+  if (
+    state.bomb.y < 0 ||
+    state.bomb.x < 0 ||
+    state.bomb.x > window.innerWidth / state.scale
+  ) {
+    return true; // The bomb is off-screen
+  }
+}
+
+function checkBuildingHit() {
   // ...
 }
 
-function animate(timestamp) {
+function checkGorillaHit() {
   // ...
 }
