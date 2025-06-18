@@ -350,21 +350,25 @@ function animate(timestamp) {
 
   const hitDetectionPrecision = 10;
   for (let i = 0; i < hitDetectionPrecision; i++) {
-    moveBomb(elapsedTime / hitDetectionPrecision);
+    moveBomb(elapsedTime / hitDetectionPrecision); // Hit detection
 
-    // Hit detection
     const miss = checkFrameHit() || checkBuildingHit();
     const hit = checkGorillaHit();
 
     // Handle the case when we hit a building or the bomb got off-screen
     if (miss) {
-      // ...
+      state.currentPlayer = state.currentPlayer === 1 ? 2 : 1; // Switch players
+      state.phase = "aiming";
+      initializeBombPosition();
+      draw();
       return;
     }
 
     // Handle the case when we hit the enemy
     if (hit) {
-      // ...
+      state.phase = "celebrating";
+      announceWinner();
+      draw();
       return;
     }
   }
@@ -375,6 +379,7 @@ function animate(timestamp) {
   previousAnimationTimestamp = timestamp;
   requestAnimationFrame(animate);
 }
+// Check if the bomb is off-screen or hit a building
 function checkFrameHit() {
   if (
     state.bomb.y < 0 ||
@@ -424,4 +429,8 @@ function checkGorillaHit() {
   ctx.restore();
 
   return hit;
+}
+
+function announceWinner() { 
+    // ... 
 }
