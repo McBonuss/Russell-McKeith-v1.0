@@ -11,6 +11,7 @@ newGame();
 function newGame() {
   // Initialize game state
   state = {
+    scale: 1,
     phase: "aiming", // aiming | in flight | celebrating
     currentPlayer: 1,
     bomb: {
@@ -21,16 +22,21 @@ function newGame() {
     buildings: generateBuildings(),
   };
 
-  initializeBombPosition();
-
-  draw();
+  window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    calculateScale();
+    initializeBombPosition();
+    draw();
+  });
 }
 
 function draw() {
-    ctx.save();
+  ctx.save();
   // Flip coordinate system upside down
   ctx.translate(0, window.innerHeight);
   ctx.scale(1, -1);
+  ctx.scale(state.scale, state.scale);
 
   // Draw scene
   drawBackground();
@@ -42,8 +48,16 @@ function draw() {
   // Restore transformation
   ctx.restore();
 }
+
+function calculateScale() {
+  const lastBuilding = state.buildings.at(-1);
+  const totalWidthOfTheCity = lastBuilding.x + lastBuilding.width;
+
+  state.scale = window.innerWidth / totalWidthOfTheCity;
+}
+
 function generateBuildings() {
-   const buildings = [];
+  const buildings = [];
   for (let index = 0; index < 8; index++) {
     const previousBuilding = buildings[index - 1];
 
@@ -72,8 +86,16 @@ function generateBuildings() {
 }
 function drawBackground() {
   ctx.fillStyle = "#58A8D8";
-  ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+  ctx.fillRect(
+    0,
+    0,
+    window.innerWidth / state.scale,
+    window.innerHeight / state.scale
+  );
 }
+
+
+
 
 function drawBuildings() {
   state.buildings.forEach((building) => {
@@ -101,19 +123,19 @@ function drawGorilla(player) {
 function drawGorillaBody() {
   ctx.fillStyle = "black";
 
-  ctx.beginPath(); 
+  ctx.beginPath();
 
   // Starting Position
-  ctx.moveTo(0, 15); 
+  ctx.moveTo(0, 15);
 
   // Left Leg
   ctx.lineTo(-7, 0);
-  ctx.lineTo(-20, 0); 
+  ctx.lineTo(-20, 0);
 
   // Main Body
   ctx.lineTo(-13, 77);
   ctx.lineTo(0, 84);
-  ctx.lineTo(13, 77); 
+  ctx.lineTo(13, 77);
 
   // Right Leg
   ctx.lineTo(20, 0);
@@ -124,7 +146,7 @@ function drawGorillaBody() {
 
 
 function drawGorillaLeftArm(player) {
-    ctx.strokeStyle = "black";
+  ctx.strokeStyle = "black";
   ctx.lineWidth = 18;
 
   ctx.beginPath();
@@ -182,7 +204,7 @@ function drawGorillaFace() {
   ctx.stroke();
 }
 function drawBomb() {
-    ctx.fillStyle = "white";
+  ctx.fillStyle = "white";
   ctx.beginPath();
   ctx.arc(state.bomb.x, state.bomb.y, 6, 0, 2 * Math.PI);
   ctx.fill();
