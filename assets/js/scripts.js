@@ -4,7 +4,7 @@ let state = {};
 
 // References to HTML elements
 const canvas = document.getElementById("game");
-// ...
+const ctx = canvas.getContext("2d");
 
 newGame();
 
@@ -17,7 +17,11 @@ const angle2DOM = document.querySelector("#info-right .angle");
 const velocity2DOM = document.querySelector("#info-right .velocity");
 
 // The bomb's grab area 
-const bombGrabAreaDOM = document.getElementById("bomb-grab-area");
+const bombGrabAreaDOM = document.getElementById("congratulations");
+const winnerDOM = document.getElementById("winner");
+const newGameButtonDOM = document.getElementById("new-game");
+// New Game Button
+newGameButtonDOM.addEventListener("click", newGame);
 
 function newGame() {
   // Initialize game state
@@ -33,13 +37,18 @@ function newGame() {
     buildings: generateBuildings(),
   };
 
-  window.addEventListener("resize", () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    calculateScale();
-    initializeBombPosition();
-    draw();
-  });
+  calculateScale();
+
+  initializeBombPosition();
+
+  // Reset HTML elements
+  congratulationsDOM.style.visibility = "hidden";
+  angle1DOM.innerText = 0;
+  velocity1DOM.innerText = 0;
+  angle2DOM.innerText = 0;
+  velocity2DOM.innerText = 0;
+
+  draw();
 }
 
 function draw() {
@@ -321,12 +330,10 @@ let previousAnimationTimestamp = undefined;
 
 // Function to throw the bomb 
 function throwBomb() {
-  function throwBomb() {
     state.phase = "in flight";
     previousAnimationTimestamp = undefined;
     requestAnimationFrame(animate);
   }
-}
 // Function to move the bomb based on the elapsed time
 // This function will be called in the animation loop
 function moveBomb(elapsedTime) {
@@ -431,6 +438,19 @@ function checkGorillaHit() {
   return hit;
 }
 
-function announceWinner() { 
-    // ... 
+function announceWinner() {
+  winnerDOM.innerText = `Player ${state.currentPlayer}`;
+  congratulationsDOM.style.visibility = "visible";
 }
+
+function setCanvasSize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+setCanvasSize();
+window.addEventListener("resize", () => {
+  setCanvasSize();
+  calculateScale();
+  initializeBombPosition();
+  draw();
+});
