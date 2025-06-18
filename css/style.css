@@ -26,10 +26,10 @@ body {
 
 #bomb-grab-area {
   position: absolute;
-  width: 30px;
-  height: 30px;
+  width: 40px; /* 2 * grabAreaRadius */
+  height: 40px; /* 2 * grabAreaRadius */
   border-radius: 50%;
-  background-color: transparent;
+  background-color: rgba(255, 0, 0, 0.3); /* Optional: Add a semi-transparent color for debugging */
   cursor: grab;
 }
 

@@ -1,12 +1,11 @@
 // The state of the game
 let state = {};
-// ...
 
 // References to HTML elements
-const canvas = document.getElementById("game"); 
-canvas.width = window.innerWidth; 
-canvas.height = window.innerHeight; 
-const ctx = canvas.getContext("2d"); 
+const canvas = document.getElementById("game");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+const ctx = canvas.getContext("2d");
 
 // Left info panel
 const angle1DOM = document.querySelector("#info-left .angle");
@@ -16,7 +15,7 @@ const velocity1DOM = document.querySelector("#info-left .velocity");
 const angle2DOM = document.querySelector("#info-right .angle");
 const velocity2DOM = document.querySelector("#info-right .velocity");
 
-// The bomb's grab area 
+// The bomb's grab area
 const bombGrabAreaDOM = document.getElementById("bomb-grab-area");
 const congratulationsDOM = document.getElementById("congratulations");
 const winnerDOM = document.getElementById("winner");
@@ -32,6 +31,8 @@ function newGame() {
   // Initialize game state
   state = {
     scale: 1,
+    offsetX: 0,
+    offsetY: 0,
     phase: "aiming", // aiming | in flight | celebrating
     currentPlayer: 1,
     bomb: {
@@ -56,28 +57,33 @@ function newGame() {
   draw();
 }
 
-function draw() { 
-  ctx.save(); 
-  // Flip coordinate system upside down 
-  ctx.translate(0, window.innerHeight); 
-  ctx.scale(1, -1); 
+function draw() {
+  ctx.save();
+  // Flip coordinate system upside down
+  ctx.translate(0, canvas.height); // Use canvas.height, not window.innerHeight
+  ctx.scale(1, -1);
 
-  // Draw scene 
-  drawBackground(); 
+  // Draw scene
+  drawBackground();
   drawBuildings();
   drawGorilla(1);
   drawGorilla(2);
-  drawBomb(); 
+  drawBomb();
 
-  // Restore transformation 
-  ctx.restore(); 
+  // Restore transformation
+  ctx.restore();
 }
 
 function calculateScale() {
   const lastBuilding = state.buildings.at(-1);
   const totalWidthOfTheCity = lastBuilding.x + lastBuilding.width;
-
-  state.scale = window.innerWidth / totalWidthOfTheCity;
+  const maxBuildingHeight = Math.max(...state.buildings.map((b) => b.height));
+  state.scale = Math.min(
+    canvas.width / totalWidthOfTheCity,
+    canvas.height / (maxBuildingHeight + 200) // 200 for gorilla/trajectory space
+  );
+  state.offsetX = (canvas.width - totalWidthOfTheCity * state.scale) / 2;
+  state.offsetY = (canvas.height - (maxBuildingHeight + 200) * state.scale) / 2;
 }
 
 function generateBuildings() {
@@ -111,18 +117,11 @@ function generateBuildings() {
   }
   return buildings;
 }
+
 function drawBackground() {
   ctx.fillStyle = "#58A8D8";
-  ctx.fillRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
-
-
-
 
 function drawBuildings() {
   state.buildings.forEach((building) => {
@@ -148,6 +147,7 @@ function drawGorilla(player) {
 
   ctx.restore();
 }
+
 function drawGorillaBody() {
   ctx.fillStyle = "black";
 
@@ -271,19 +271,28 @@ function initializeBombPosition() {
   state.bomb.velocity.x = 0;
   state.bomb.velocity.y = 0;
 
-  // Initialize the position of the grab area in HTML
-  const grabAreaRadius = 15;
-  const left = state.bomb.x * state.scale - grabAreaRadius;
-  const top = state.bomb.y * state.scale - grabAreaRadius;
+  // Update the grab area position
+  updateBombGrabArea();
+}
+
+function updateBombGrabArea() {
+  const grabAreaRadius = 20; // Match the grab area's radius (half of its width/height)
+
+  // Convert bomb's game position to screen coordinates
+  const left = state.bomb.x * state.scale + state.offsetX - grabAreaRadius;
+  const top = (canvas.height - state.bomb.y * state.scale) - grabAreaRadius; // Flip y-axis for DOM
+
+  // Update the grab area's position
   bombGrabAreaDOM.style.left = `${left}px`;
   bombGrabAreaDOM.style.top = `${top}px`;
 }
+
 // Event handlers
 let isDragging = false;
 let dragStartX = undefined;
 let dragStartY = undefined;
 
-//mouse event handlers for the bomb grab area
+// Mouse event handlers for the bomb grab area
 bombGrabAreaDOM.addEventListener("mousedown", function (e) {
   if (state.phase === "aiming") {
     isDragging = true;
@@ -297,18 +306,18 @@ bombGrabAreaDOM.addEventListener("mousedown", function (e) {
 
 window.addEventListener("mousemove", function (e) {
   if (isDragging) {
-    let deltaX = e.clientX - dragStartX;
-    let deltaY = e.clientY - dragStartY;
+    let deltaX = (e.clientX - dragStartX) / state.scale;
+    let deltaY = (dragStartY - e.clientY) / state.scale; // Flip y-axis
 
     state.bomb.velocity.x = -deltaX;
-    state.bomb.velocity.y = +deltaY;
+    state.bomb.velocity.y = -deltaY; // Flip y-axis to match canvas
     setInfo(deltaX, deltaY);
 
+    updateBombGrabArea(); // Update grab area position
     draw();
   }
 });
-//is dragging is true when the mouse is down on the bomb grab area
-// and false when the mouse is up
+
 window.addEventListener("mouseup", function () {
   if (isDragging) {
     isDragging = false;
@@ -319,10 +328,10 @@ window.addEventListener("mouseup", function () {
   }
 });
 
-// Used Velocity calculator online to calculate the angle and velocity, also quiried with copilot to check the maths
+// Used Velocity calculator online to calculate the angle and velocity, also queried with copilot to check the maths
 function setInfo(deltaX, deltaY) {
   const hypotenuse = Math.sqrt(deltaX ** 2 + deltaY ** 2);
-  const angleInRadians = Math.asin(deltaY / hypotenuse);
+  const angleInRadians = Math.atan2(-deltaY, deltaX); // Use -deltaY for flipped canvas
   const angleInDegrees = (angleInRadians / Math.PI) * 180;
 
   if (state.currentPlayer === 1) {
@@ -336,19 +345,18 @@ function setInfo(deltaX, deltaY) {
 
 let previousAnimationTimestamp = undefined;
 
-// Function to throw the bomb 
+// Function to throw the bomb
 function throwBomb() {
-    state.phase = "in flight";
-    previousAnimationTimestamp = undefined;
-    requestAnimationFrame(animate);
-  }
+  state.phase = "in flight";
+  previousAnimationTimestamp = undefined;
+  requestAnimationFrame(animate);
+}
+
 // Function to move the bomb based on the elapsed time
-// This function will be called in the animation loop
 function moveBomb(elapsedTime) {
   const multiplier = elapsedTime / 200; // Adjust trajectory by gravity
 
-  state.bomb.velocity.y -= 20 * multiplier; // Calculate new position
-
+  state.bomb.velocity.y -= 20 * multiplier; // Gravity pulls the bomb downward
   state.bomb.x += state.bomb.velocity.x * multiplier;
   state.bomb.y += state.bomb.velocity.y * multiplier;
 }
@@ -388,18 +396,20 @@ function animate(timestamp) {
     }
   }
 
+  updateBombGrabArea(); // Update grab area position
   draw();
 
   // Continue the animation loop
   previousAnimationTimestamp = timestamp;
   requestAnimationFrame(animate);
 }
+
 // Check if the bomb is off-screen or hit a building
 function checkFrameHit() {
   if (
     state.bomb.y < 0 ||
     state.bomb.x < 0 ||
-    state.bomb.x > window.innerWidth / state.scale
+    state.bomb.x > canvas.width / state.scale
   ) {
     return true; // The bomb is off-screen
   }
