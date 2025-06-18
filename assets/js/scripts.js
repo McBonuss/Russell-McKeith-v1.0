@@ -16,6 +16,9 @@ const velocity1DOM = document.querySelector("#info-left .velocity");
 const angle2DOM = document.querySelector("#info-right .angle");
 const velocity2DOM = document.querySelector("#info-right .velocity");
 
+// The bomb's grab area 
+const bombGrabAreaDOM = document.getElementById("bomb-grab-area");
+
 function newGame() {
   // Initialize game state
   state = {
@@ -234,9 +237,42 @@ function initializeBombPosition() {
   state.bomb.y = gorillaY + gorillaHandOffsetY;
   state.bomb.velocity.x = 0;
   state.bomb.velocity.y = 0;
+
+  // Initialize the position of the grab area in HTML
+  const grabAreaRadius = 15;
+  const left = state.bomb.x * state.scale - grabAreaRadius;
+  const bottom = state.bomb.y * state.scale - grabAreaRadius;
+  bombGrabAreaDOM.style.left = `${left}px`;
+  bombGrabAreaDOM.style.bottom = `${bottom}px`;
 }
 // Event handlers
-// ...
+let isDragging = false;
+let dragStartX = undefined;
+let dragStartY = undefined;
+
+bombGrabAreaDOM.addEventListener("mousedown", function (e) {
+  if (state.phase === "aiming") {
+    isDragging = true;
+
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+
+    document.body.style.cursor = "grabbing";
+  }
+});
+
+window.addEventListener("mousemove", function (e) {
+  if (isDragging) {
+    let deltaX = e.clientX - dragStartX;
+    let deltaY = e.clientY - dragStartY;
+
+    state.bomb.velocity.x = -deltaX;
+    state.bomb.velocity.y = +deltaY;
+    setInfo(deltaX, deltaY);
+
+    draw();
+  }
+});
 
 function throwBomb() {
   // ...
