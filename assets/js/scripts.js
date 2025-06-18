@@ -6,8 +6,6 @@ let state = {};
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-newGame();
-
 // Left info panel
 const angle1DOM = document.querySelector("#info-left .angle");
 const velocity1DOM = document.querySelector("#info-left .velocity");
@@ -21,8 +19,12 @@ const bombGrabAreaDOM = document.getElementById("bomb-grab-area");
 const congratulationsDOM = document.getElementById("congratulations");
 const winnerDOM = document.getElementById("winner");
 const newGameButtonDOM = document.getElementById("new-game");
+
 // New Game Button
 newGameButtonDOM.addEventListener("click", newGame);
+
+// Now call newGame() after all DOM references are set
+newGame();
 
 function newGame() {
   // Initialize game state
@@ -54,10 +56,6 @@ function newGame() {
 
 function draw() {
   ctx.save();
-  // Flip coordinate system upside down
-  ctx.translate(0, window.innerHeight);
-  ctx.scale(1, -1);
-  ctx.scale(state.scale, state.scale);
 
   // Draw scene
   drawBackground();
@@ -66,7 +64,6 @@ function draw() {
   drawGorilla(2);
   drawBomb();
 
-  // Restore transformation
   ctx.restore();
 }
 
@@ -101,7 +98,10 @@ function generateBuildings() {
       ? minHeightGorilla + Math.random() * (maxHeightGorilla - minHeightGorilla)
       : minHeight + Math.random() * (maxHeight - minHeight);
 
-    buildings.push({ x, width, height });
+    // Draw from the bottom: y = 0
+    const y = 0;
+
+    buildings.push({ x, y, width, height });
   }
   return buildings;
 }
@@ -110,8 +110,8 @@ function drawBackground() {
   ctx.fillRect(
     0,
     0,
-    window.innerWidth / state.scale,
-    window.innerHeight / state.scale
+    canvas.width,
+    canvas.height
   );
 }
 
@@ -121,7 +121,7 @@ function drawBackground() {
 function drawBuildings() {
   state.buildings.forEach((building) => {
     ctx.fillStyle = "#152A47";
-    ctx.fillRect(building.x, 0, building.width, building.height);
+    ctx.fillRect(building.x, building.y, building.width, building.height);
   });
 }
 
@@ -129,10 +129,11 @@ function drawGorilla(player) {
   ctx.save();
   const building =
     player === 1
-      ? state.buildings.at(1) // Second building
-      : state.buildings.at(-2); // Second last building
+      ? state.buildings.at(1)
+      : state.buildings.at(-2);
 
-  ctx.translate(building.x + building.width / 2, building.height);
+  // Place gorilla on top of building
+  ctx.translate(building.x + building.width / 2, building.y + building.height);
 
   drawGorillaBody();
   drawGorillaLeftArm(player);
@@ -250,11 +251,11 @@ function drawBomb() {
 function initializeBombPosition() {
   const building =
     state.currentPlayer === 1
-      ? state.buildings.at(1) // Second building
-      : state.buildings.at(-2); // Second last building
+      ? state.buildings.at(1)
+      : state.buildings.at(-2);
 
   const gorillaX = building.x + building.width / 2;
-  const gorillaY = building.height;
+  const gorillaY = building.y + building.height;
 
   const gorillaHandOffsetX = state.currentPlayer === 1 ? -28 : 28;
   const gorillaHandOffsetY = 107;
@@ -267,9 +268,9 @@ function initializeBombPosition() {
   // Initialize the position of the grab area in HTML
   const grabAreaRadius = 15;
   const left = state.bomb.x * state.scale - grabAreaRadius;
-  const bottom = state.bomb.y * state.scale - grabAreaRadius;
+  const top = state.bomb.y * state.scale - grabAreaRadius;
   bombGrabAreaDOM.style.left = `${left}px`;
-  bombGrabAreaDOM.style.bottom = `${bottom}px`;
+  bombGrabAreaDOM.style.top = `${top}px`;
 }
 // Event handlers
 let isDragging = false;
@@ -404,7 +405,8 @@ function checkBuildingHit() {
     if (
       state.bomb.x + 4 > building.x &&
       state.bomb.x - 4 < building.x + building.width &&
-      state.bomb.y - 4 < 0 + building.height
+      state.bomb.y + 4 > building.y &&
+      state.bomb.y - 4 < building.y + building.height
     ) {
       return true; // Building hit
     }
@@ -422,7 +424,7 @@ function checkGorillaHit() {
 
   ctx.translate(
     enemyBuilding.x + enemyBuilding.width / 2,
-    enemyBuilding.height
+    enemyBuilding.y // <-- FIXED: was enemyBuilding.height
   );
 
   drawGorillaBody();
