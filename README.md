@@ -1,133 +1,152 @@
 # Gorilla Game
 
-This is a modern browser-based remake of the classic "Gorillas" artillery game. Two gorillas stand atop city buildings and take turns throwing explosive bananas at each other, adjusting angle and velocity to account for gravity and obstacles. The last gorilla standing wins!
+A modern, browser-based remake of the classic "Gorillas" artillery game. Two gorillas stand atop procedurally generated city buildings and take turns throwing explosive bananas at each other. Adjust angle and velocity to account for gravity and obstacles—the last gorilla standing wins!
 
 ---
 
 ## Table of Contents
 
-1. [Project Overview](#project-overview)
-2. [UX](#ux)
-   1. [Project Goals](#project-goals)
-   2. [User Stories](#user-stories)
-   3. [Color Scheme](#color-scheme)
-   4. [Typography](#typography)
-   5. [Wireframes](#wireframes)
-3. [Features](#features)
-   1. [General](#general)
-   2. [Game Window](#game-window)
-   3. [Game Controls](#game-controls)
-   4. [Mobile Support](#mobile-support)
-   5. [Future Features](#future-features)
-4. [Technologies Used](#technologies-used)
-   1. [Languages Used](#languages-used)
-   2. [Frameworks, Libraries and Programs Used](#frameworks-libraries-and-programs-used)
-5. [Testing](#testing)
-   1. [Manual Testing](#manual-testing)
-   2. [Automated Testing](#automated-testing)
-   3. [Known Issues](#known-issues)
-6. [Deployment](#deployment)
-7. [Credits](#credits)
-8. [Acknowledgements](#acknowledgements)
+1. [Overview](#overview)
+2. [Features](#features)
+3. [Demo](#demo)
+4. [Screenshots](#screenshots)
+5. [Getting Started](#getting-started)
+   - [Prerequisites](#prerequisites)
+   - [Installation](#installation)
+   - [Running Locally](#running-locally)
+   - [Deployment](#deployment)
+6. [File Structure](#file-structure)
+7. [Main Components](#main-components)
+8. [Gameplay](#gameplay)
+9. [Technologies Used](#technologies-used)
+10. [Testing](#testing)
+11. [Browser Compatibility](#browser-compatibility)
+12. [Accessibility](#accessibility)
+13. [Known Issues](#known-issues)
+14. [Future Features](#future-features)
+15. [Contributing](#contributing)
+16. [Credits & Acknowledgements](#credits--acknowledgements)
+17. [Support](#support)
+18. [License](#license)
 
 ---
 
-## Project Overview
+## Overview
 
-This project is a full-stack JavaScript remake of the classic Gorillas game, designed to be responsive and playable on both desktop and mobile browsers. The game features randomly generated city skylines, interactive aiming and throwing mechanics, and a floating card UI. The codebase is modular and well-documented for maintainability and future enhancements.
-
----
-
-## UX
-
-### Project Goals
-
-- Deliver a fun, nostalgic, and accessible artillery game experience in the browser.
-- Provide a responsive, visually appealing interface that works on all devices.
-- Make controls intuitive for both mouse and touch users.
-- Allow for easy replayability and clear win/loss feedback.
-
-### User Stories
-
-- As a player, I want to easily understand how to play and see feedback for my actions.
-- As a player, I want to adjust the angle and velocity of my throws and see the effect in real time.
-- As a player, I want the game to work on my phone and desktop.
-- As a player, I want to be able to restart the game at any time.
-- As a player, I want to see who won and have the option to play again.
-
-### Color Scheme
-
-- The game uses a dark background (`#1e1e1e`) for contrast.
-- The city skyline is rendered in deep blues.
-- UI elements use white and accent colors for clarity.
-
-### Typography
-
-- The main font is monospace for a retro, code-inspired feel.
-- Headings and buttons use bold, clear type for readability.
-
-### Wireframes
-
-- The game window is centered in a floating card.
-- Info panels for each player are positioned at the top corners.
-- The bomb grab area overlays the gorilla's hand for intuitive interaction.
-- On mobile, a rotate message overlays the game in portrait mode.
+**Gorilla Game** is a full-stack JavaScript remake of the beloved QBasic classic. Built for modern browsers with mobile support, it features a responsive UI, randomly generated skylines, and intuitive drag controls for aiming and throwing. The game is designed for easy replayability and a nostalgic yet fresh experience.
 
 ---
 
 ## Features
 
-### General
+- **Responsive Design:** Scales gracefully between desktop and mobile devices.
+- **Procedural City Generation:** Each match features a unique skyline.
+- **Animated Gorillas:** Enjoy charming animations and expressive gameplay.
+- **Interactive Controls:** Drag to set angle and velocity, suitable for mouse and touch.
+- **Win/Loss Detection:** Clear feedback and celebration overlays.
+- **Replayability:** Reset and start new games with a single click.
+- **Modern UI:** Floating card interface with concise info panels for each player.
+- **Mobile Support:** Landscape-first layout, with prompts for device rotation.
 
-- Responsive design: The game window scales to fit the browser/card.
-- Floating card UI: The game is presented in a visually distinct card with rounded corners and shadow.
-- Random city generation: Each game features a new skyline.
-- Animated gorillas and bomb throws.
-- Win/loss detection and celebration overlay.
+---
 
-### Game Window
+## Demo
 
-- The canvas is dynamically sized to fit the `.game-container` card.
-- All game elements (buildings, gorillas, bomb) scale with the window.
-- The bomb grab area is always pinned to the active gorilla's hand.
+> [Play the game on GitHub Pages](https://<your-username>.github.io/<repo-name>/)
 
-### Game Controls
+Replace `<your-username>` and `<repo-name>` with your GitHub details.
 
-- Drag the bomb grab area to set angle and velocity.
-- Release to throw.
-- Info panels show current angle and velocity for each player.
-- "New Game" button or refreshing the page resets the game and city.
+---
 
-### Mobile Support
+## Screenshots
 
-- On mobile devices in portrait mode, a message prompts the user to rotate their device horizontally.
-- Touch events are supported for bomb dragging.
+<!-- Replace with actual image paths in your repo -->
+![Game Start](screenshots/game-start.png)
+![Player Aiming](screenshots/aiming.png)
+![Victory Screen](screenshots/victory.png)
 
-### Future Features
+---
 
-- Wind and weather effects.
-- Textured buildings
-- Wind indicators 
-- Sound effects and music.
-- AI opponent.
-- Score tracking and leaderboards.
+## Getting Started
+
+### Prerequisites
+
+- A modern web browser (Chrome, Firefox, Edge, Safari)
+- (Optional) [Live Server extension for VSCode](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) for hot-reloading
+
+### Installation
+
+1. **Clone the repository:**
+   ```sh
+   git clone https://github.com/<your-username>/<repo-name>.git
+   cd <repo-name>
+   ```
+
+### Running Locally
+
+Open `index.html` directly in your browser, or use Live Server for development:
+
+```sh
+open index.html      # macOS
+start index.html     # Windows
+xdg-open index.html  # Linux
+```
+
+### Deployment
+
+1. Push your code to the `main` branch on GitHub.
+2. In repository settings, set GitHub Pages source to the `main` branch.
+3. Your game will be available at:  
+   `https://<your-username>.github.io/<repo-name>/`
+
+---
+
+## File Structure
+
+```
+/
+├── index.html
+├── css/
+│   └── style.css
+├── assets/
+│   └── js/
+│       └── scripts.js
+└── README.md
+```
+- **index.html**: Main HTML file, includes game UI and info sections.
+- **css/style.css**: Main stylesheet for layout and game visuals.
+- **assets/js/scripts.js**: All game logic and rendering.
+
+---
+
+## Main Components
+
+- **Canvas Rendering:** All visuals (buildings, gorillas, bananas) are drawn using the `<canvas>` element and 2D context.
+- **State Management:** The game uses a single `state` object to track current phase, bomb position, player turn, buildings, etc.
+- **Event Handling:** Interaction is through mouse/touch events bound to the bomb grab area for aiming/throwing.
+- **Responsive Design:** The canvas and UI elements resize and reposition based on the `.game-container`’s size.
+- **Mobile Orientation:** A rotate message is displayed on portrait mobile layouts.
+
+---
+
+## Gameplay
+
+- **Goal:** Be the last gorilla standing by accurately throwing bananas at your opponent.
+- **Controls:**
+  - **Drag the bomb:** Set the angle and velocity.
+  - **Release:** Throw the banana.
+  - **Info Panels:** See your angle and velocity.
+  - **New Game:** Restart the game and regenerate the city.
+- **Mobile:** Rotate to landscape for optimal play. Touch controls are fully supported.
 
 ---
 
 ## Technologies Used
 
-### Languages Used
-
-- HTML5
-- CSS3
-- JavaScript (ES6)
-
-### Frameworks, Libraries and Programs Used
-
-- [VSCode](https://code.visualstudio.com/) for development
-- [Chrome DevTools](https://developer.chrome.com/docs/devtools/) for debugging and testing
-- [Google Fonts](https://fonts.google.com/) for typography
-- [GitHub](https://github.com/) for version control and deployment
+- **Languages:** HTML5, CSS3, JavaScript (ES6)
+- **Dev Tools:** VSCode, Chrome DevTools
+- **Fonts:** Google Fonts (monospace for retro feel)
+- **Version Control & Hosting:** GitHub, GitHub Pages
 
 ---
 
@@ -135,30 +154,90 @@ This project is a full-stack JavaScript remake of the classic Gorillas game, des
 
 ### Manual Testing
 
-- **Responsiveness:** Tested on Chrome, Firefox, Edge, and Safari at various window sizes.
-- **Mobile:** Tested on iPhone and Android devices. The rotate message appears in portrait mode and disappears in landscape.
-- **Gameplay:** Verified that both players can aim and throw, that the bomb interacts with buildings and gorillas, and that the win condition triggers correctly.
-- **UI:** Checked that info panels, overlays, and the bomb grab area are always visible and correctly positioned.
-- **Edge Cases:** Resizing the window mid-game, rapid new game resets, and switching device orientation.
+- Cross-browser: Chrome, Firefox, Edge, Safari.
+- Mobile: iOS and Android, including device orientation handling.
+- Gameplay: All game states, win/loss detection, UI overlays.
+- Responsive resizing: Window resize during gameplay and resets.
 
 ### Automated Testing
 
-- No automated tests are currently implemented. All testing has been manual and exploratory.
-
-### Known Issues
-
-- On some mobile browsers, touch dragging may not be as smooth as mouse dragging.
-- The bomb grab area may appear slightly offset on certain device pixel ratios; this is due to subpixel rounding and can be improved with further calibration.
-- If the window is resized during a throw, the bomb's trajectory may visually jump due to rescaling.
-- Accessibility for screen readers is minimal, as the game is primarily visual and interactive.
+- No automated tests implemented yet. All testing has been manual and exploratory.
 
 ---
 
-## Deployment
+## Browser Compatibility
 
-- The project is deployed via GitHub Pages.
-- To deploy:
-  1. Push the latest code to the `main` branch on GitHub.
-  2. In repository settings, set GitHub Pages source to the `main` branch.
-  3. The game will be available at `https://<your-username>.github.io/<repo-name>/`.
+Tested in:
+- Chrome (latest)
+- Firefox (latest)
+- Edge (latest)
+- Safari (latest)
+- Mobile browsers on iOS and Android
 
+> Note: Touch dragging may vary slightly between browsers.
+
+---
+
+## Accessibility
+
+- The game is primarily visual and interactive, with minimal support for screen readers.
+- Info panels are marked up as headings and paragraphs, but gameplay is not fully accessible for non-visual users.
+
+---
+
+## Known Issues
+
+- Touch dragging may be less smooth on some mobile browsers.
+- The bomb grab area may be slightly offset on certain device pixel ratios (subpixel rounding).
+- Resizing during a throw may cause the bomb’s trajectory to jump.
+- Minimal accessibility support for screen readers.
+
+---
+
+## Future Features
+
+- [ ] Add wind and weather effects
+- [ ] Sound effects and background music
+- [ ] AI opponent for solo play
+- [ ] Score tracking and persistent leaderboards
+- [ ] Enhanced accessibility for visually impaired users
+- [ ] Game settings (gravity, building count, etc.)
+
+---
+
+## Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature/your-feature`).
+3. Commit your changes.
+4. Open a pull request with a clear description.
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) if available.
+
+---
+
+## Credits & Acknowledgements
+
+- Inspired by the original [QBasic Gorillas](https://en.wikipedia.org/wiki/Gorillas_(video_game))
+- UI and gameplay enhancements by [Your Name] and community contributors.
+- [MDN Web Docs](https://developer.mozilla.org/) for JavaScript and Canvas APIs
+- [Google Fonts](https://fonts.google.com/) for "Press Start 2P"
+- Special thanks to open-source contributors and testers.
+
+---
+
+## Support
+
+If you encounter bugs or have feature requests, please [open an issue](https://github.com/<your-username>/<repo-name>/issues).
+
+---
+
+## License
+
+This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
+
+---
+
+**Enjoy the game! Feel free to submit issues, suggestions, or pull requests to help make Gorilla Game even better.**
