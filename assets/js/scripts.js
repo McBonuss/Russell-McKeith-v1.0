@@ -470,6 +470,8 @@ function checkGorillaHit() {
 function announceWinner() {
   winnerDOM.innerText = `Player ${state.currentPlayer}`;
   congratulationsDOM.style.visibility = "visible";
+  congratulationsDOM.setAttribute('tabindex', '-1');
+  congratulationsDOM.focus();
 }
 
 function resizeCanvasToContainer() {

@@ -77,6 +77,7 @@ Replace `<your-username>` and `<repo-name>` with your GitHub details.
 ### Installation
 
 1. **Clone the repository:**
+
    ```sh
    git clone https://github.com/<your-username>/<repo-name>.git
    cd <repo-name>
@@ -113,6 +114,7 @@ xdg-open index.html  # Linux
 │       └── scripts.js
 └── README.md
 ```
+
 - **index.html**: Main HTML file, includes game UI and info sections.
 - **css/style.css**: Main stylesheet for layout and game visuals.
 - **assets/js/scripts.js**: All game logic and rendering.
@@ -168,6 +170,7 @@ xdg-open index.html  # Linux
 ## Browser Compatibility
 
 Tested in:
+
 - Chrome (latest)
 - Firefox (latest)
 - Edge (latest)
