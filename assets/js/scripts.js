@@ -501,3 +501,13 @@ function checkOrientation() {
 window.addEventListener('resize', checkOrientation);
 window.addEventListener('orientationchange', checkOrientation);
 document.addEventListener('DOMContentLoaded', checkOrientation);
+
+document.addEventListener('keydown', function(e) {
+  if (state.phase === "aiming") {
+    if (e.key === "ArrowUp") { /* increase angle */ }
+    if (e.key === "ArrowDown") { /* decrease angle */ }
+    if (e.key === "ArrowLeft") { /* decrease velocity */ }
+    if (e.key === "ArrowRight") { /* increase velocity */ }
+    if (e.key === " ") { /* throw */ }
+  }
+});
