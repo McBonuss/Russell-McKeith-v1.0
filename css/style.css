@@ -9,6 +9,51 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 100vh;
+  background: #1e1e1e;
+}
+
+.game-container {
+  position: relative;
+  width: 90vw;
+  max-width: 900px;
+  aspect-ratio: 16 / 9;
+  background: #23272e;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: transparent;
+}
+
+/* Overlay for mobile orientation warning */
+#rotate-message {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  background: rgba(30,30,30,0.95);
+  color: #fff;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 1.5em;
+}
+
+#rotate-message > div {
+  margin: auto;
+  padding: 2em;
+  background: #23272e;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
 }
 
 #info-left {
@@ -36,11 +81,4 @@ body {
 #congratulations {
   position: absolute;
   visibility: hidden;
-}
-
-canvas {
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
 }

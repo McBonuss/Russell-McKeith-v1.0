@@ -3,8 +3,6 @@ let state = {};
 
 // References to HTML elements
 const canvas = document.getElementById("game");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
 const ctx = canvas.getContext("2d");
 
 // Left info panel
@@ -271,20 +269,41 @@ function initializeBombPosition() {
   state.bomb.velocity.x = 0;
   state.bomb.velocity.y = 0;
 
-  // Update the grab area position
   updateBombGrabArea();
 }
 
 function updateBombGrabArea() {
-  const grabAreaRadius = 20; // Match the grab area's radius (half of its width/height)
+  const grabAreaRadius = 20;
 
-  // Convert bomb's game position to screen coordinates
-  const left = state.bomb.x * state.scale + state.offsetX - grabAreaRadius;
-  const top = (canvas.height - state.bomb.y * state.scale) - grabAreaRadius; // Flip y-axis for DOM
+  // Find the gorilla/building for the current player
+  const building =
+    state.currentPlayer === 1
+      ? state.buildings.at(1)
+      : state.buildings.at(-2);
 
-  // Update the grab area's position
+  const gorillaX = building.x + building.width / 2;
+  const gorillaY = building.y + building.height;
+
+  // These offsets should match the ones used for the bomb's initial position
+  const gorillaHandOffsetX = state.currentPlayer === 1 ? -30 : 30;
+  const gorillaHandOffsetY = 90;
+
+  // Calculate the hand position in world coordinates
+  const handX = gorillaX + gorillaHandOffsetX;
+  const handY = gorillaY + gorillaHandOffsetY;
+
+  // Convert to canvas coordinates
+  const handCanvasX = handX * state.scale + (state.offsetX || 0);
+  const handCanvasY = handY * state.scale + (state.offsetY || 0);
+
+  // Flip Y for DOM overlay and center the grab area
+  const left = handCanvasX - grabAreaRadius;
+  const top = canvas.height - handCanvasY - grabAreaRadius;
+
   bombGrabAreaDOM.style.left = `${left}px`;
   bombGrabAreaDOM.style.top = `${top}px`;
+  bombGrabAreaDOM.style.width = `${grabAreaRadius * 8}px`;
+  bombGrabAreaDOM.style.height = `${grabAreaRadius * 8}px`;
 }
 
 // Event handlers
@@ -462,14 +481,32 @@ function announceWinner() {
   congratulationsDOM.style.visibility = "visible";
 }
 
-function setCanvasSize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-setCanvasSize();
-window.addEventListener("resize", () => {
-  setCanvasSize();
+function resizeCanvasToContainer() {
+  const container = document.querySelector('.game-container');
+  if (!container) return;
+  const rect = container.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
   calculateScale();
   initializeBombPosition();
   draw();
-});
+  updateBombGrabArea();
+}
+
+// Call this after DOM loaded and after newGame
+window.addEventListener('resize', resizeCanvasToContainer);
+document.addEventListener('DOMContentLoaded', resizeCanvasToContainer);
+
+function checkOrientation() {
+  const rotateMsg = document.getElementById('rotate-message');
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isMobile && window.innerWidth < window.innerHeight) {
+    rotateMsg.style.display = 'flex';
+  } else {
+    rotateMsg.style.display = 'none';
+  }
+}
+
+window.addEventListener('resize', checkOrientation);
+window.addEventListener('orientationchange', checkOrientation);
+document.addEventListener('DOMContentLoaded', checkOrientation);
