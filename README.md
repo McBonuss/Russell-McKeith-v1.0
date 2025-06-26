@@ -96,7 +96,7 @@ This project is a full-stack JavaScript remake of the classic Gorillas game, des
 - Drag the bomb grab area to set angle and velocity.
 - Release to throw.
 - Info panels show current angle and velocity for each player.
-- "New Game" button resets the game and city.
+- "New Game" button or refreshing the page resets the game and city.
 
 ### Mobile Support
 
@@ -106,6 +106,8 @@ This project is a full-stack JavaScript remake of the classic Gorillas game, des
 ### Future Features
 
 - Wind and weather effects.
+- Textured buildings
+- Wind indicators 
 - Sound effects and music.
 - AI opponent.
 - Score tracking and leaderboards.
