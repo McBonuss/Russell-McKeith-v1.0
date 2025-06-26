@@ -440,47 +440,71 @@ function checkFrameHit() {
 }
 
 function checkGorillaHit() {
+  // Determine which gorilla is the target
   const enemyPlayer = state.currentPlayer === 1 ? 2 : 1;
   const enemyBuilding =
     enemyPlayer === 1
-      ? state.buildings.at(1) // Second building
-      : state.buildings.at(-2); // Second last building
+      ? state.buildings.at(1)
+      : state.buildings.at(-2);
+
+  // Gorilla's local origin (where you translate before drawing the gorilla)
+  const gorillaOriginX = enemyBuilding.x + enemyBuilding.width / 2;
+  const gorillaOriginY = enemyBuilding.y + enemyBuilding.height;
+
+  // Convert bomb's global position to gorilla's local coordinates
+  const bombLocalX = state.bomb.x - gorillaOriginX;
+  const bombLocalY = state.bomb.y - gorillaOriginY;
+
+  let hit = false;
 
   ctx.save();
+  ctx.translate(gorillaOriginX, gorillaOriginY);
 
-  ctx.translate(
-    enemyBuilding.x + enemyBuilding.width / 2,
-    enemyBuilding.y // <-- FIXED: was enemyBuilding.height
-  );
-
+  // Check body (filled path)
   drawGorillaBody();
-  // Check if the bomb circle overlaps the gorilla body
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(state.bomb.x, state.bomb.y, 6, 0, 2 * Math.PI); // 6 is bomb radius
-  ctx.closePath();
-  let hit = ctx.isPointInPath(state.bomb.x, state.bomb.y) || ctx.isPointInPath(state.bomb.x + 6, state.bomb.y) || ctx.isPointInPath(state.bomb.x - 6, state.bomb.y) || ctx.isPointInPath(state.bomb.x, state.bomb.y + 6) || ctx.isPointInPath(state.bomb.x, state.bomb.y - 6);
-  ctx.restore();
+  // Check multiple points around the bomb's circumference for better accuracy
+  const bombRadius = 6;
+  const points = [
+    [bombLocalX, bombLocalY],
+    [bombLocalX + bombRadius, bombLocalY],
+    [bombLocalX - bombRadius, bombLocalY],
+    [bombLocalX, bombLocalY + bombRadius],
+    [bombLocalX, bombLocalY - bombRadius],
+    [bombLocalX + bombRadius * 0.7, bombLocalY + bombRadius * 0.7],
+    [bombLocalX - bombRadius * 0.7, bombLocalY + bombRadius * 0.7],
+    [bombLocalX + bombRadius * 0.7, bombLocalY - bombRadius * 0.7],
+    [bombLocalX - bombRadius * 0.7, bombLocalY - bombRadius * 0.7],
+  ];
+  for (const [x, y] of points) {
+    if (ctx.isPointInPath(x, y)) {
+      hit = true;
+      break;
+    }
+  }
 
-  // For arms, use isPointInStroke with the bomb's circle
-  drawGorillaLeftArm(enemyPlayer);
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(state.bomb.x, state.bomb.y, 6, 0, 2 * Math.PI);
-  ctx.closePath();
-  hit ||= ctx.isPointInStroke(state.bomb.x, state.bomb.y) || ctx.isPointInStroke(state.bomb.x + 6, state.bomb.y) || ctx.isPointInStroke(state.bomb.x - 6, state.bomb.y) || ctx.isPointInStroke(state.bomb.x, state.bomb.y + 6) || ctx.isPointInStroke(state.bomb.x, state.bomb.y - 6);
-  ctx.restore();
+  // Check left arm (stroked path)
+  if (!hit) {
+    drawGorillaLeftArm(enemyPlayer);
+    for (const [x, y] of points) {
+      if (ctx.isPointInStroke(x, y)) {
+        hit = true;
+        break;
+      }
+    }
+  }
 
-  drawGorillaRightArm(enemyPlayer);
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(state.bomb.x, state.bomb.y, 6, 0, 2 * Math.PI);
-  ctx.closePath();
-  hit ||= ctx.isPointInStroke(state.bomb.x, state.bomb.y) || ctx.isPointInStroke(state.bomb.x + 6, state.bomb.y) || ctx.isPointInStroke(state.bomb.x - 6, state.bomb.y) || ctx.isPointInStroke(state.bomb.x, state.bomb.y + 6) || ctx.isPointInStroke(state.bomb.x, state.bomb.y - 6);
-  ctx.restore();
+  // Check right arm (stroked path)
+  if (!hit) {
+    drawGorillaRightArm(enemyPlayer);
+    for (const [x, y] of points) {
+      if (ctx.isPointInStroke(x, y)) {
+        hit = true;
+        break;
+      }
+    }
+  }
 
   ctx.restore();
-
   return hit;
 }
 
