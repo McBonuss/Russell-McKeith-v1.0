@@ -454,13 +454,30 @@ function checkGorillaHit() {
   );
 
   drawGorillaBody();
-  let hit = ctx.isPointInPath(state.bomb.x, state.bomb.y);
+  // Check if the bomb circle overlaps the gorilla body
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(state.bomb.x, state.bomb.y, 6, 0, 2 * Math.PI); // 6 is bomb radius
+  ctx.closePath();
+  let hit = ctx.isPointInPath(state.bomb.x, state.bomb.y) || ctx.isPointInPath(state.bomb.x + 6, state.bomb.y) || ctx.isPointInPath(state.bomb.x - 6, state.bomb.y) || ctx.isPointInPath(state.bomb.x, state.bomb.y + 6) || ctx.isPointInPath(state.bomb.x, state.bomb.y - 6);
+  ctx.restore();
 
+  // For arms, use isPointInStroke with the bomb's circle
   drawGorillaLeftArm(enemyPlayer);
-  hit ||= ctx.isPointInStroke(state.bomb.x, state.bomb.y);
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(state.bomb.x, state.bomb.y, 6, 0, 2 * Math.PI);
+  ctx.closePath();
+  hit ||= ctx.isPointInStroke(state.bomb.x, state.bomb.y) || ctx.isPointInStroke(state.bomb.x + 6, state.bomb.y) || ctx.isPointInStroke(state.bomb.x - 6, state.bomb.y) || ctx.isPointInStroke(state.bomb.x, state.bomb.y + 6) || ctx.isPointInStroke(state.bomb.x, state.bomb.y - 6);
+  ctx.restore();
 
   drawGorillaRightArm(enemyPlayer);
-  hit ||= ctx.isPointInStroke(state.bomb.x, state.bomb.y);
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(state.bomb.x, state.bomb.y, 6, 0, 2 * Math.PI);
+  ctx.closePath();
+  hit ||= ctx.isPointInStroke(state.bomb.x, state.bomb.y) || ctx.isPointInStroke(state.bomb.x + 6, state.bomb.y) || ctx.isPointInStroke(state.bomb.x - 6, state.bomb.y) || ctx.isPointInStroke(state.bomb.x, state.bomb.y + 6) || ctx.isPointInStroke(state.bomb.x, state.bomb.y - 6);
+  ctx.restore();
 
   ctx.restore();
 

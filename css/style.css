@@ -2,7 +2,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: monospace;
-  font-size: 14px;
+  font-size: 1rem;
   color: #fff;
   user-select: none;
   -webkit-user-select: none;
@@ -14,7 +14,7 @@ body {
 /* Pixelated Gorillas Title */
 .gorilla-title {
   font-family: 'Press Start 2P', monospace, cursive;
-  font-size: 2.5em;
+  font-size: 2.5rem;
   color: #ffe600;
   text-shadow: 2px 2px 0 #000, 4px 4px 0 #333;
   letter-spacing: 0.1em;
