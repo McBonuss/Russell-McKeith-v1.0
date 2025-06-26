@@ -1,32 +1,37 @@
-// The state of the game
+// --- Constants ---
+const LEFT_GORILLA_INDEX = 1;
+const RIGHT_GORILLA_INDEX = -2;
+const GORILLA_BODY_CENTER_Y = 55;
+const GORILLA_BODY_RADIUS = 28;
+const BOMB_RADIUS = 6;
+
+// --- State ---
 let state = {};
 
-// References to HTML elements
+// --- DOM References ---
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-
-// Left info panel
 const angle1DOM = document.querySelector("#info-left .angle");
 const velocity1DOM = document.querySelector("#info-left .velocity");
-
-// Right info panel
 const angle2DOM = document.querySelector("#info-right .angle");
 const velocity2DOM = document.querySelector("#info-right .velocity");
-
-// The bomb's grab area
 const bombGrabAreaDOM = document.getElementById("bomb-grab-area");
 const congratulationsDOM = document.getElementById("congratulations");
 const winnerDOM = document.getElementById("winner");
 const newGameButtonDOM = document.getElementById("new-game");
 
-// New Game Button
+// --- Initialization ---
 newGameButtonDOM.addEventListener("click", newGame);
-
-// Now call newGame() after all DOM references are set
-newGame();
+window.addEventListener('resize', resizeCanvasToContainer);
+document.addEventListener('DOMContentLoaded', () => {
+  newGame(); // <-- This initializes state and triggers the first draw
+  resizeCanvasToContainer();
+  checkOrientation();
+});
+window.addEventListener('orientationchange', checkOrientation);
+window.addEventListener('resize', checkOrientation);
 
 function newGame() {
-  // Initialize game state
   state = {
     scale: 1,
     offsetX: 0,
@@ -40,80 +45,50 @@ function newGame() {
     },
     buildings: generateBuildings(),
   };
-
   calculateScale();
-
   initializeBombPosition();
-
-  // Reset HTML elements
   congratulationsDOM.style.visibility = "hidden";
   angle1DOM.innerText = 0;
   velocity1DOM.innerText = 0;
   angle2DOM.innerText = 0;
   velocity2DOM.innerText = 0;
-
   draw();
 }
 
+// --- Utility Functions ---
+function getGorillaBuilding(player) {
+  return player === 1
+    ? state.buildings.at(LEFT_GORILLA_INDEX)
+    : state.buildings.at(RIGHT_GORILLA_INDEX);
+}
+
+function getGorillaOrigin(player) {
+  const building = getGorillaBuilding(player);
+  return {
+    x: building.x + building.width / 2,
+    y: building.y + building.height
+  };
+}
+
+function getBombLocalCoords(targetPlayer) {
+  const origin = getGorillaOrigin(targetPlayer);
+  return {
+    x: state.bomb.x - origin.x,
+    y: state.bomb.y - origin.y
+  };
+}
+
+// --- Drawing Functions ---
 function draw() {
   ctx.save();
-  // Flip coordinate system upside down
-  ctx.translate(0, canvas.height); // Use canvas.height, not window.innerHeight
+  ctx.translate(0, canvas.height);
   ctx.scale(1, -1);
-
-  // Draw scene
   drawBackground();
   drawBuildings();
   drawGorilla(1);
   drawGorilla(2);
   drawBomb();
-
-  // Restore transformation
   ctx.restore();
-}
-
-function calculateScale() {
-  const lastBuilding = state.buildings.at(-1);
-  const totalWidthOfTheCity = lastBuilding.x + lastBuilding.width;
-  const maxBuildingHeight = Math.max(...state.buildings.map((b) => b.height));
-  state.scale = Math.min(
-    canvas.width / totalWidthOfTheCity,
-    canvas.height / (maxBuildingHeight + 200) // 200 for gorilla/trajectory space
-  );
-  state.offsetX = (canvas.width - totalWidthOfTheCity * state.scale) / 2;
-  state.offsetY = (canvas.height - (maxBuildingHeight + 200) * state.scale) / 2;
-}
-
-function generateBuildings() {
-  const buildings = [];
-  for (let index = 0; index < 9; index++) {
-    const previousBuilding = buildings[index - 1];
-
-    const x = previousBuilding
-      ? previousBuilding.x + previousBuilding.width + 4
-      : 0;
-
-    const minWidth = 80;
-    const maxWidth = 120;
-    const width = minWidth + Math.random() * (maxWidth - minWidth);
-
-    const platformWithGorilla = index === 1 || index === 6;
-
-    const minHeight = 40;
-    const maxHeight = 300;
-    const minHeightGorilla = 30;
-    const maxHeightGorilla = 150;
-
-    const height = platformWithGorilla
-      ? minHeightGorilla + Math.random() * (maxHeightGorilla - minHeightGorilla)
-      : minHeight + Math.random() * (maxHeight - minHeight);
-
-    // Draw from the bottom: y = 0
-    const y = 0;
-
-    buildings.push({ x, y, width, height });
-  }
-  return buildings;
 }
 
 function drawBackground() {
@@ -124,60 +99,49 @@ function drawBackground() {
 function drawBuildings() {
   state.buildings.forEach((building) => {
     ctx.fillStyle = "#152A47";
-    ctx.fillRect(building.x, building.y, building.width, building.height);
+    ctx.fillRect(building.x, 0, building.width, building.height);
   });
 }
 
 function drawGorilla(player) {
   ctx.save();
-  const building =
-    player === 1
-      ? state.buildings.at(1)
-      : state.buildings.at(-2);
-
-  // Place gorilla on top of building
-  ctx.translate(building.x + building.width / 2, building.y + building.height);
-
+  const { x, y } = getGorillaOrigin(player);
+  ctx.translate(x, y);
   drawGorillaBody();
   drawGorillaLeftArm(player);
   drawGorillaRightArm(player);
   drawGorillaFace();
+
+  // Debug: Draw hitbox
+  ctx.beginPath();
+  ctx.arc(0, GORILLA_BODY_CENTER_Y, GORILLA_BODY_RADIUS, 0, 2 * Math.PI);
+  ctx.strokeStyle = "red";
+  ctx.lineWidth = 2;
+  ctx.stroke();
 
   ctx.restore();
 }
 
 function drawGorillaBody() {
   ctx.fillStyle = "black";
-
   ctx.beginPath();
-
-  // Starting Position
-  ctx.moveTo(0, 15);
-
-  // Left Leg
-  ctx.lineTo(-7, 0);
-  ctx.lineTo(-20, 0);
-
-  // Main Body
-  ctx.lineTo(-13, 77);
-  ctx.lineTo(0, 84);
-  ctx.lineTo(13, 77);
-
-  // Right Leg
-  ctx.lineTo(20, 0);
-  ctx.lineTo(7, 0);
-
+  ctx.moveTo(0, 20);
+  ctx.lineTo(-10, 0);
+  ctx.lineTo(-25, 0);
+  ctx.lineTo(-18, 80);
+  ctx.lineTo(0, 95);
+  ctx.lineTo(18, 80);
+  ctx.lineTo(25, 0);
+  ctx.lineTo(10, 0);
+  ctx.closePath();
   ctx.fill();
 }
-
 
 function drawGorillaLeftArm(player) {
   ctx.strokeStyle = "black";
   ctx.lineWidth = 18;
-
   ctx.beginPath();
   ctx.moveTo(-13, 50);
-
   if (
     (state.phase === "aiming" && state.currentPlayer === 1 && player === 1) ||
     (state.phase === "celebrating" && state.currentPlayer === player)
@@ -186,17 +150,14 @@ function drawGorillaLeftArm(player) {
   } else {
     ctx.quadraticCurveTo(-44, 45, -28, 12);
   }
-
   ctx.stroke();
 }
 
 function drawGorillaRightArm(player) {
   ctx.strokeStyle = "black";
   ctx.lineWidth = 18;
-
   ctx.beginPath();
   ctx.moveTo(+13, 50);
-
   if (
     (state.phase === "aiming" && state.currentPlayer === 2 && player === 2) ||
     (state.phase === "celebrating" && state.currentPlayer === player)
@@ -205,37 +166,24 @@ function drawGorillaRightArm(player) {
   } else {
     ctx.quadraticCurveTo(+44, 45, +28, 12);
   }
-
   ctx.stroke();
 }
 
 function drawGorillaFace() {
   ctx.strokeStyle = "lightgray";
   ctx.lineWidth = 3;
-
   ctx.beginPath();
-
-  // Left Eye
-  ctx.moveTo(-5, 70);
-  ctx.lineTo(-2, 70);
-
-  // Right Eye
-  ctx.moveTo(2, 70);
-  ctx.lineTo(5, 70);
-
-  // Mouth
-  ctx.moveTo(-5, 62);
-  ctx.lineTo(5, 62);
-
+  ctx.moveTo(-5, 70); ctx.lineTo(-2, 70); // Left Eye
+  ctx.moveTo(2, 70); ctx.lineTo(5, 70);   // Right Eye
+  ctx.moveTo(-5, 62); ctx.lineTo(5, 62);  // Mouth
   ctx.stroke();
 }
+
 function drawBomb() {
-  // Draw throwing trajectory
   if (state.phase === "aiming") {
     ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
     ctx.setLineDash([3, 8]);
     ctx.lineWidth = 3;
-
     ctx.beginPath();
     ctx.moveTo(state.bomb.x, state.bomb.y);
     ctx.lineTo(
@@ -243,75 +191,91 @@ function drawBomb() {
       state.bomb.y + state.bomb.velocity.y
     );
     ctx.stroke();
+    ctx.setLineDash([]);
   }
-
-  // Draw circle
   ctx.fillStyle = "white";
   ctx.beginPath();
-  ctx.arc(state.bomb.x, state.bomb.y, 6, 0, 2 * Math.PI);
+  ctx.arc(state.bomb.x, state.bomb.y, BOMB_RADIUS, 0, 2 * Math.PI);
+  ctx.fill();
+
+  // Debug: bomb center
+  ctx.beginPath();
+  ctx.arc(state.bomb.x, state.bomb.y, 2, 0, 2 * Math.PI);
+  ctx.fillStyle = "lime";
   ctx.fill();
 }
 
-function initializeBombPosition() {
-  const building =
-    state.currentPlayer === 1
-      ? state.buildings.at(1)
-      : state.buildings.at(-2);
+// --- Game Logic ---
+function calculateScale() {
+  const lastBuilding = state.buildings.at(-1);
+  const totalWidthOfTheCity = lastBuilding.x + lastBuilding.width;
+  const maxBuildingHeight = Math.max(...state.buildings.map((b) => b.height));
+  state.scale = Math.min(
+    canvas.width / totalWidthOfTheCity,
+    canvas.height / (maxBuildingHeight + 200)
+  );
+  state.offsetX = (canvas.width - totalWidthOfTheCity * state.scale) / 2;
+  state.offsetY = (canvas.height - (maxBuildingHeight + 200) * state.scale) / 2;
+}
 
+function generateBuildings() {
+  const buildings = [];
+  for (let index = 0; index < 9; index++) {
+    const previousBuilding = buildings[index - 1];
+    const x = previousBuilding
+      ? previousBuilding.x + previousBuilding.width + 4
+      : 0;
+    const minWidth = 80, maxWidth = 120;
+    const width = minWidth + Math.random() * (maxWidth - minWidth);
+    const platformWithGorilla = index === 1 || index === 6;
+    const minHeight = 40, maxHeight = 300;
+    const minHeightGorilla = 30, maxHeightGorilla = 150;
+    const height = platformWithGorilla
+      ? minHeightGorilla + Math.random() * (maxHeightGorilla - minHeightGorilla)
+      : minHeight + Math.random() * (maxHeight - minHeight);
+    const y = 0;
+    buildings.push({ x, y, width, height });
+  }
+  return buildings;
+}
+
+function initializeBombPosition() {
+  const building = getGorillaBuilding(state.currentPlayer);
   const gorillaX = building.x + building.width / 2;
   const gorillaY = building.y + building.height;
-
   const gorillaHandOffsetX = state.currentPlayer === 1 ? -28 : 28;
   const gorillaHandOffsetY = 107;
-
   state.bomb.x = gorillaX + gorillaHandOffsetX;
   state.bomb.y = gorillaY + gorillaHandOffsetY;
   state.bomb.velocity.x = 0;
   state.bomb.velocity.y = 0;
-
   updateBombGrabArea();
 }
 
 function updateBombGrabArea() {
-  const grabAreaRadius = 100; // or whatever size needed for card
-
-  // Find the gorilla/building for the current player
-  const building =
-    state.currentPlayer === 1
-      ? state.buildings.at(1)
-      : state.buildings.at(-2);
-
-  // Gorilla body center: on top of building, offset up by half the gorilla's height
+  const grabAreaRadius = 20;
+  const building = getGorillaBuilding(state.currentPlayer);
   const gorillaBodyCenterX = building.x + building.width / 2;
-  const gorillaBodyCenterY = building.y + building.height + 20; // Adjust 42 as needed
-
-  // Convert to canvas coordinates
-  const centerCanvasX = gorillaBodyCenterX * state.scale + (state.offsetX || -2);
-  const centerCanvasY = gorillaBodyCenterY * state.scale + (state.offsetY || 80);
-
-  // Flip Y for DOM overlay and center the grab area
+  const gorillaBodyCenterY = building.y + building.height + GORILLA_BODY_CENTER_Y;
+  const centerCanvasX = gorillaBodyCenterX * state.scale + (state.offsetX || 0);
+  const centerCanvasY = gorillaBodyCenterY * state.scale + (state.offsetY || 0);
   const left = centerCanvasX - grabAreaRadius;
   const top = canvas.height - centerCanvasY - grabAreaRadius;
-
   bombGrabAreaDOM.style.left = `${left}px`;
   bombGrabAreaDOM.style.top = `${top}px`;
-  bombGrabAreaDOM.style.width = `190px`;
-  bombGrabAreaDOM.style.height = `190px`;
+  bombGrabAreaDOM.style.width = `${grabAreaRadius * 2}px`;
+  bombGrabAreaDOM.style.height = `${grabAreaRadius * 2}px`;
 }
 
-// Event handlers
+// --- Event Handlers ---
 let isDragging = false;
-let dragStartX = undefined;
-let dragStartY = undefined;
+let dragStartX, dragStartY;
 
-// Mouse event handlers for the bomb grab area
 bombGrabAreaDOM.addEventListener("mousedown", function (e) {
   if (state.phase === "aiming") {
     isDragging = true;
-
     dragStartX = e.clientX;
     dragStartY = e.clientY;
-
     document.body.style.cursor = "grabbing";
   }
 });
@@ -319,13 +283,11 @@ bombGrabAreaDOM.addEventListener("mousedown", function (e) {
 window.addEventListener("mousemove", function (e) {
   if (isDragging) {
     let deltaX = (e.clientX - dragStartX) / state.scale;
-    let deltaY = (dragStartY - e.clientY) / state.scale; // Flip y-axis
-
+    let deltaY = (dragStartY - e.clientY) / state.scale;
     state.bomb.velocity.x = -deltaX;
-    state.bomb.velocity.y = -deltaY; // Flip y-axis to match canvas
+    state.bomb.velocity.y = -deltaY;
     setInfo(deltaX, deltaY);
-
-    updateBombGrabArea(); // Update grab area position
+    updateBombGrabArea();
     draw();
   }
 });
@@ -333,19 +295,15 @@ window.addEventListener("mousemove", function (e) {
 window.addEventListener("mouseup", function () {
   if (isDragging) {
     isDragging = false;
-
     document.body.style.cursor = "default";
-
     throwBomb();
   }
 });
 
-// Used Velocity calculator online to calculate the angle and velocity, also queried with copilot to check the maths
 function setInfo(deltaX, deltaY) {
   const hypotenuse = Math.sqrt(deltaX ** 2 + deltaY ** 2);
-  const angleInRadians = Math.atan2(-deltaY, deltaX); // Use -deltaY for flipped canvas
+  const angleInRadians = Math.atan2(-deltaY, deltaX);
   const angleInDegrees = (angleInRadians / Math.PI) * 180;
-
   if (state.currentPlayer === 1) {
     angle1DOM.innerText = Math.round(angleInDegrees);
     velocity1DOM.innerText = Math.round(hypotenuse);
@@ -355,51 +313,41 @@ function setInfo(deltaX, deltaY) {
   }
 }
 
+// --- Bomb Flight ---
 let previousAnimationTimestamp = undefined;
 
-// Function to throw the bomb
 function throwBomb() {
   state.phase = "in flight";
   previousAnimationTimestamp = undefined;
   requestAnimationFrame(animate);
 }
 
-// Function to move the bomb based on the elapsed time
 function moveBomb(elapsedTime) {
-  const multiplier = elapsedTime / 200; // Adjust trajectory by gravity
-
-  state.bomb.velocity.y -= 20 * multiplier; // Gravity pulls the bomb downward
+  const multiplier = elapsedTime / 200;
+  state.bomb.velocity.y -= 20 * multiplier;
   state.bomb.x += state.bomb.velocity.x * multiplier;
   state.bomb.y += state.bomb.velocity.y * multiplier;
 }
 
-// Animation loop
 function animate(timestamp) {
   if (!previousAnimationTimestamp) {
     previousAnimationTimestamp = timestamp;
     requestAnimationFrame(animate);
     return;
   }
-
   const elapsedTime = timestamp - previousAnimationTimestamp;
-
   const hitDetectionPrecision = 10;
   for (let i = 0; i < hitDetectionPrecision; i++) {
-    moveBomb(elapsedTime / hitDetectionPrecision); // Hit detection
-
+    moveBomb(elapsedTime / hitDetectionPrecision);
     const miss = checkFrameHit() || checkBuildingHit();
     const hit = checkGorillaHit();
-
-    // Handle the case when we hit a building or the bomb got off-screen
     if (miss) {
-      state.currentPlayer = state.currentPlayer === 1 ? 2 : 1; // Switch players
+      state.currentPlayer = state.currentPlayer === 1 ? 2 : 1;
       state.phase = "aiming";
       initializeBombPosition();
       draw();
       return;
     }
-
-    // Handle the case when we hit the enemy
     if (hit) {
       state.phase = "celebrating";
       announceWinner();
@@ -407,11 +355,8 @@ function animate(timestamp) {
       return;
     }
   }
-
-  updateBombGrabArea(); // Update grab area position
+  updateBombGrabArea();
   draw();
-
-  // Continue the animation loop
   previousAnimationTimestamp = timestamp;
   requestAnimationFrame(animate);
 }
@@ -424,14 +369,13 @@ function checkBuildingHit() {
       state.bomb.y >= building.y &&
       state.bomb.y <= building.y + building.height
     ) {
-      return true; // Bomb hit a building
+      return true;
     }
   }
   return false;
 }
 
 function checkFrameHit() {
-  // Out of bounds (left, right, or below ground)
   return (
     state.bomb.x < 0 ||
     state.bomb.x > canvas.width / state.scale ||
@@ -440,70 +384,36 @@ function checkFrameHit() {
 }
 
 function checkGorillaHit() {
-  // Determine which gorilla is the target
   const enemyPlayer = state.currentPlayer === 1 ? 2 : 1;
-  const enemyBuilding =
-    enemyPlayer === 1
-      ? state.buildings.at(1)
-      : state.buildings.at(-2);
-
-  // Gorilla's local origin (where you translate before drawing the gorilla)
-  const gorillaOriginX = enemyBuilding.x + enemyBuilding.width / 2;
-  const gorillaOriginY = enemyBuilding.y + enemyBuilding.height;
-
-  // Convert bomb's global position to gorilla's local coordinates
-  const bombLocalX = state.bomb.x - gorillaOriginX;
-  const bombLocalY = state.bomb.y - gorillaOriginY;
-
-  let hit = false;
+  const { x: gorillaOriginX, y: gorillaOriginY } = getGorillaOrigin(enemyPlayer);
+  const { x: bombLocalX, y: bombLocalY } = getBombLocalCoords(enemyPlayer);
 
   ctx.save();
   ctx.translate(gorillaOriginX, gorillaOriginY);
-
-  // Check body (filled path)
   drawGorillaBody();
-  // Check multiple points around the bomb's circumference for better accuracy
-  const bombRadius = 6;
-  const points = [
-    [bombLocalX, bombLocalY],
-    [bombLocalX + bombRadius, bombLocalY],
-    [bombLocalX - bombRadius, bombLocalY],
-    [bombLocalX, bombLocalY + bombRadius],
-    [bombLocalX, bombLocalY - bombRadius],
-    [bombLocalX + bombRadius * 0.7, bombLocalY + bombRadius * 0.7],
-    [bombLocalX - bombRadius * 0.7, bombLocalY + bombRadius * 0.7],
-    [bombLocalX + bombRadius * 0.7, bombLocalY - bombRadius * 0.7],
-    [bombLocalX - bombRadius * 0.7, bombLocalY - bombRadius * 0.7],
-  ];
-  for (const [x, y] of points) {
-    if (ctx.isPointInPath(x, y)) {
+
+  let hit = false;
+  for (let a = 0; a < 2 * Math.PI; a += Math.PI / 8) {
+    const px = bombLocalX + BOMB_RADIUS * Math.cos(a);
+    const py = bombLocalY + BOMB_RADIUS * Math.sin(a);
+    if (ctx.isPointInPath(px, py)) {
       hit = true;
       break;
     }
   }
-
-  // Check left arm (stroked path)
   if (!hit) {
-    drawGorillaLeftArm(enemyPlayer);
-    for (const [x, y] of points) {
-      if (ctx.isPointInStroke(x, y)) {
+    ctx.beginPath();
+    ctx.arc(0, GORILLA_BODY_CENTER_Y, GORILLA_BODY_RADIUS, 0, 2 * Math.PI);
+    ctx.closePath();
+    for (let a = 0; a < 2 * Math.PI; a += Math.PI / 8) {
+      const px = bombLocalX + BOMB_RADIUS * Math.cos(a);
+      const py = bombLocalY + BOMB_RADIUS * Math.sin(a);
+      if (ctx.isPointInPath(px, py)) {
         hit = true;
         break;
       }
     }
   }
-
-  // Check right arm (stroked path)
-  if (!hit) {
-    drawGorillaRightArm(enemyPlayer);
-    for (const [x, y] of points) {
-      if (ctx.isPointInStroke(x, y)) {
-        hit = true;
-        break;
-      }
-    }
-  }
-
   ctx.restore();
   return hit;
 }
@@ -527,10 +437,6 @@ function resizeCanvasToContainer() {
   updateBombGrabArea();
 }
 
-// Call this after DOM loaded and after newGame
-window.addEventListener('resize', resizeCanvasToContainer);
-document.addEventListener('DOMContentLoaded', resizeCanvasToContainer);
-
 function checkOrientation() {
   const rotateMsg = document.getElementById('rotate-message');
   const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -541,16 +447,9 @@ function checkOrientation() {
   }
 }
 
-window.addEventListener('resize', checkOrientation);
-window.addEventListener('orientationchange', checkOrientation);
-document.addEventListener('DOMContentLoaded', checkOrientation);
-
-document.addEventListener('keydown', function(e) {
+// --- Keyboard Controls (optional, for accessibility) ---
+document.addEventListener('keydown', function (e) {
   if (state.phase === "aiming") {
-    if (e.key === "ArrowUp") { /* increase angle */ }
-    if (e.key === "ArrowDown") { /* decrease angle */ }
-    if (e.key === "ArrowLeft") { /* decrease velocity */ }
-    if (e.key === "ArrowRight") { /* increase velocity */ }
-    if (e.key === " ") { /* throw */ }
+    // Implement keyboard aiming/throwing if desired
   }
 });
