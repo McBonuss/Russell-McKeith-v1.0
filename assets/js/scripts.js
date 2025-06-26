@@ -273,7 +273,7 @@ function initializeBombPosition() {
 }
 
 function updateBombGrabArea() {
-  const grabAreaRadius = 50; // 50px diameter means 100px radius
+  const grabAreaRadius = 100; // or whatever size needed for card
 
   // Find the gorilla/building for the current player
   const building =
@@ -282,13 +282,12 @@ function updateBombGrabArea() {
       : state.buildings.at(-2);
 
   // Gorilla body center: on top of building, offset up by half the gorilla's height
-  // Adjust 60 to match half your gorilla's height in your drawing code
-  const gorillaBodyCenterX = building.x + building.width / 3;
-  const gorillaBodyCenterY = building.y + building.height + 50;
+  const gorillaBodyCenterX = building.x + building.width / 2;
+  const gorillaBodyCenterY = building.y + building.height + 20; // Adjust 42 as needed
 
   // Convert to canvas coordinates
-  const centerCanvasX = gorillaBodyCenterX * state.scale + (state.offsetX || 1);
-  const centerCanvasY = gorillaBodyCenterY * state.scale + (state.offsetY || 0);
+  const centerCanvasX = gorillaBodyCenterX * state.scale + (state.offsetX || -2);
+  const centerCanvasY = gorillaBodyCenterY * state.scale + (state.offsetY || 80);
 
   // Flip Y for DOM overlay and center the grab area
   const left = centerCanvasX - grabAreaRadius;
@@ -296,8 +295,8 @@ function updateBombGrabArea() {
 
   bombGrabAreaDOM.style.left = `${left}px`;
   bombGrabAreaDOM.style.top = `${top}px`;
-  bombGrabAreaDOM.style.width = `90px`;
-  bombGrabAreaDOM.style.height = `90px`;
+  bombGrabAreaDOM.style.width = `190px`;
+  bombGrabAreaDOM.style.height = `190px`;
 }
 
 // Event handlers
