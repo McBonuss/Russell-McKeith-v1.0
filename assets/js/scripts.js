@@ -253,7 +253,7 @@ function initializeBombPosition() {
 }
 
 function updateBombGrabArea() {
-  const grabAreaRadius = 20;
+  const grabAreaRadius = 80;
   const building = getGorillaBuilding(state.currentPlayer);
   const gorillaBodyCenterX = building.x + building.width / 2;
   const gorillaBodyCenterY = building.y + building.height + GORILLA_BODY_CENTER_Y;
