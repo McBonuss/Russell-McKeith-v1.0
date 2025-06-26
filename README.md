@@ -104,7 +104,7 @@ xdg-open index.html  # Linux
 
 ## File Structure
 
-```
+```text
 /
 ├── index.html
 ├── css/
