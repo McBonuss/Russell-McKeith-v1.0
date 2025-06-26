@@ -6,13 +6,60 @@ body {
   color: white;
   user-select: none;
   -webkit-user-select: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
   background: #1e1e1e;
+  display: block;
 }
 
+/* Pixelated Gorillas Title */
+.gorilla-title {
+  font-family: 'Press Start 2P', monospace, cursive;
+  font-size: 2.5em;
+  color: #ffe600;
+  text-shadow: 2px 2px 0 #000, 4px 4px 0 #333;
+  letter-spacing: 0.1em;
+  text-align: center;
+  width: 100vw;
+  left: 0;
+  right: 0;
+  position: relative;
+  top: 0;
+  z-index: 10;
+  pointer-events: none;
+  margin: 1.2em 0 0.5em 0;
+  padding: 0;
+}
+
+/* History section (now visible, not background) */
+.gorilla-history-section {
+  max-width: 900px;
+  margin: 0 auto 2em auto;
+  padding: 1.5em 2em 1em 2em;
+  background: rgba(40,40,40,0.85);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  text-align: center;
+  font-family: monospace;
+  color: #fff;
+  opacity: 0.95;
+}
+
+.gorilla-history-section h2 {
+  font-size: 2em;
+  margin-bottom: 0.5em;
+  letter-spacing: 0.05em;
+  color: #ffe600;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.gorilla-history-section p {
+  max-width: 700px;
+  margin: 0 auto;
+  font-size: 1.1em;
+  line-height: 1.5;
+}
+
+/* Center the game card and push it below the history */
 .game-container {
   position: relative;
   width: 90vw;
@@ -25,6 +72,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 0 auto 2em auto;
 }
 
 canvas {
@@ -81,4 +129,40 @@ canvas {
 #congratulations {
   position: absolute;
   visibility: hidden;
+}
+
+/* Ensure the card and title are above the background */
+.gorilla-title,
+.game-container,
+#rotate-message {
+  position: relative;
+  z-index: 2;
+}
+
+/* Add to your style.css for styling the about section */
+.gorilla-about-section {
+  max-width: 900px;
+  margin: 2em auto 2em auto;
+  padding: 1.5em 2em 1em 2em;
+  background: rgba(40,40,40,0.85);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  text-align: center;
+  font-family: monospace;
+  color: #fff;
+  opacity: 0.97;
+}
+
+.gorilla-about-section h2 {
+  font-size: 1.5em;
+  margin-bottom: 0.5em;
+  color: #ffe600;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.gorilla-about-section p {
+  max-width: 700px;
+  margin: 0.5em auto;
+  font-size: 1.1em;
+  line-height: 1.5;
 }

@@ -5,29 +5,27 @@
     <title>Gorillas</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="css/style.css" />
-    <script src="assets/js/scripts.js" defer></script>
-    <!-- Google Fonts for pixelated style -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="assets/js/scripts.js" defer></script>
   </head>
   <body>
-    <!-- Background history text -->
-    <div class="gorilla-history-bg">
-      <div>
-        <h2>The History of Gorillas</h2>
-        <p>
-          Gorillas, also known as "Gorillas.bas", is a classic artillery game that was included with MS-DOS QBasic in the early 1990s. 
-          In the game, two gorillas stand atop city skyscrapers and take turns throwing explosive bananas at each other, adjusting their angle and velocity to account for gravity and obstacles. 
-          The game was a fun way to demonstrate the capabilities of QBasic and introduced many to the basics of programming and game physics. 
-          Gorillas became a cult classic and is fondly remembered by retro gamers and programmers alike.
-        </p>
-      </div>
-    </div>
-
     <!-- Pixelated Gorillas Title -->
     <div class="gorilla-title">
       GORILLAS
     </div>
 
+    <!-- History section (not background, but visible content) -->
+    <div class="gorilla-history-section">
+      <h2>History of Gorillas</h2>
+      <p>
+        Gorillas, also known as "Gorillas.bas", is a classic artillery game that was included with MS-DOS QBasic in the early 1990s.
+        In the game, two gorillas stand atop city skyscrapers and take turns throwing explosive bananas at each other, adjusting their angle and velocity to account for gravity and obstacles.
+        The game was a fun way to demonstrate the capabilities of QBasic and introduced many to the basics of programming and game physics.
+        Gorillas became a cult classic and is fondly remembered by retro gamers and programmers alike.
+      </p>
+    </div>
+
+    <!-- Game card below the history -->
     <div class="game-container">
       <canvas id="game"></canvas>
 
@@ -54,6 +52,17 @@
       <div>
         <p>Please rotate your device horizontally to play.</p>
       </div>
+    </div>
+
+    <!-- About section (not background, but visible content) -->
+    <div class="gorilla-about-section">
+      <h2>About This Example</h2>
+      <p>
+        This modern Gorillas remake is built entirely with HTML5, CSS3, and JavaScript. The game logic, rendering, and user interaction are handled using the HTML5 <code>&lt;canvas&gt;</code> API and DOM overlays for interactive elements like the bomb grab area. JavaScript is used for procedural city generation, physics simulation (gravity, projectile motion), and real-time UI updates. The code is modular and event-driven, supporting both mouse and touch input for cross-device compatibility.
+      </p>
+      <p>
+        Unlike the original QBasic Gorillas, which was a text-based program running in a DOS environment and used simple line and circle drawing commands, this version leverages modern browser capabilities for smooth animation, responsive design, and a richer user experience. The original game logic was procedural and limited by the constraints of QBasic, while this remake uses object-oriented and functional programming patterns, and is designed to be easily extended with new features.
+      </p>
     </div>
   </body>
 </html>
