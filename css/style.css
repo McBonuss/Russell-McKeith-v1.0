@@ -166,3 +166,25 @@ canvas {
   font-size: 1.1em;
   line-height: 1.5;
 }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 100;
+}
+.skip-link:focus {
+  left: 10px;
+  top: 10px;
+  width: auto;
+  height: auto;
+  padding: 0.5em 1em;
+  background: #ffe600;
+  color: #000;
+  border-radius: 4px;
+  font-weight: bold;
+  outline: 2px solid #000;
+}
