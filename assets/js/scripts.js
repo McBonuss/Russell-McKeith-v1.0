@@ -86,7 +86,7 @@ function calculateScale() {
 
 function generateBuildings() {
   const buildings = [];
-  for (let index = 0; index < 8; index++) {
+  for (let index = 0; index < 9; index++) {
     const previousBuilding = buildings[index - 1];
 
     const x = previousBuilding
@@ -94,7 +94,7 @@ function generateBuildings() {
       : 0;
 
     const minWidth = 80;
-    const maxWidth = 130;
+    const maxWidth = 120;
     const width = minWidth + Math.random() * (maxWidth - minWidth);
 
     const platformWithGorilla = index === 1 || index === 6;
@@ -273,7 +273,7 @@ function initializeBombPosition() {
 }
 
 function updateBombGrabArea() {
-  const grabAreaRadius = 20;
+  const grabAreaRadius = 50; // 50px diameter means 100px radius
 
   // Find the gorilla/building for the current player
   const building =
@@ -281,29 +281,23 @@ function updateBombGrabArea() {
       ? state.buildings.at(1)
       : state.buildings.at(-2);
 
-  const gorillaX = building.x + building.width / 2;
-  const gorillaY = building.y + building.height;
-
-  // These offsets should match the ones used for the bomb's initial position
-  const gorillaHandOffsetX = state.currentPlayer === 1 ? -30 : 30;
-  const gorillaHandOffsetY = 90;
-
-  // Calculate the hand position in world coordinates
-  const handX = gorillaX + gorillaHandOffsetX;
-  const handY = gorillaY + gorillaHandOffsetY;
+  // Gorilla body center: on top of building, offset up by half the gorilla's height
+  // Adjust 60 to match half your gorilla's height in your drawing code
+  const gorillaBodyCenterX = building.x + building.width / 3;
+  const gorillaBodyCenterY = building.y + building.height + 50;
 
   // Convert to canvas coordinates
-  const handCanvasX = handX * state.scale + (state.offsetX || 0);
-  const handCanvasY = handY * state.scale + (state.offsetY || 0);
+  const centerCanvasX = gorillaBodyCenterX * state.scale + (state.offsetX || 1);
+  const centerCanvasY = gorillaBodyCenterY * state.scale + (state.offsetY || 0);
 
   // Flip Y for DOM overlay and center the grab area
-  const left = handCanvasX - grabAreaRadius;
-  const top = canvas.height - handCanvasY - grabAreaRadius;
+  const left = centerCanvasX - grabAreaRadius;
+  const top = canvas.height - centerCanvasY - grabAreaRadius;
 
   bombGrabAreaDOM.style.left = `${left}px`;
   bombGrabAreaDOM.style.top = `${top}px`;
-  bombGrabAreaDOM.style.width = `${grabAreaRadius * 8}px`;
-  bombGrabAreaDOM.style.height = `${grabAreaRadius * 8}px`;
+  bombGrabAreaDOM.style.width = `90px`;
+  bombGrabAreaDOM.style.height = `90px`;
 }
 
 // Event handlers
@@ -423,29 +417,27 @@ function animate(timestamp) {
   requestAnimationFrame(animate);
 }
 
-// Check if the bomb is off-screen or hit a building
-function checkFrameHit() {
-  if (
-    state.bomb.y < 0 ||
-    state.bomb.x < 0 ||
-    state.bomb.x > canvas.width / state.scale
-  ) {
-    return true; // The bomb is off-screen
-  }
-}
-
 function checkBuildingHit() {
-  for (let i = 0; i < state.buildings.length; i++) {
-    const building = state.buildings[i];
+  for (const building of state.buildings) {
     if (
-      state.bomb.x + 4 > building.x &&
-      state.bomb.x - 4 < building.x + building.width &&
-      state.bomb.y + 4 > building.y &&
-      state.bomb.y - 4 < building.y + building.height
+      state.bomb.x >= building.x &&
+      state.bomb.x <= building.x + building.width &&
+      state.bomb.y >= building.y &&
+      state.bomb.y <= building.y + building.height
     ) {
-      return true; // Building hit
+      return true; // Bomb hit a building
     }
   }
+  return false;
+}
+
+function checkFrameHit() {
+  // Out of bounds (left, right, or below ground)
+  return (
+    state.bomb.x < 0 ||
+    state.bomb.x > canvas.width / state.scale ||
+    state.bomb.y < 0
+  );
 }
 
 function checkGorillaHit() {
