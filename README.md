@@ -66,10 +66,7 @@ This project is written with maintainability and extensibility in mind, using mo
 
 ## Screenshots
 
-<!-- Replace with actual image paths in your repo -->
-![Game Start](screenshots/game-start.png)
-![Player Aiming](screenshots/aiming.png)
-![Victory Screen](screenshots/victory.png)
+
 
 ---
 
@@ -295,6 +292,7 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) if available.
 - [MDN Web Docs](https://developer.mozilla.org/) for JavaScript and Canvas APIs
 - [Google Fonts](https://fonts.google.com/) for "Press Start 2P"
 - Special thanks to open-source contributors and testers.
+- My girlfriend and my friends for putting up with me whilst writing this.
 
 ---
 
