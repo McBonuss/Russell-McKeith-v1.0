@@ -126,7 +126,7 @@ function drawBuildings() {
   state.buildings.forEach((b, i) => {
     // Main building colour (darker)
     const shade = 16 + i * 10;
-    ctx.fillStyle = `rgb(${20+shade},${36+shade},${56+shade})`;
+    ctx.fillStyle = `rgb(${20 + shade},${36 + shade},${56 + shade})`;
     ctx.fillRect(
       b.x * state.scale + state.offsetX,
       canvas.height - (b.height * state.scale + state.offsetY),
@@ -179,7 +179,9 @@ function drawGorilla(player) {
   const { x, y } = getGorillaOrigin(player);
   const cx = x * state.scale + state.offsetX;
   const cy = canvas.height - (y * state.scale + state.offsetY);
-  ctx.translate(cx, cy);
+  // Shift gorilla up so feet are on the building
+  const gorillaFootOffset = 9 * state.scale;
+  ctx.translate(cx, cy - gorillaFootOffset);
   drawGorillaBody();
   drawGorillaLeftArm(player);
   drawGorillaRightArm(player);
@@ -239,26 +241,27 @@ function drawGorillaRightArm(player) {
 }
 
 function drawGorillaFace() {
-  // Face circle
+  // Face circle with reduced angle (tilted less)
   ctx.save();
   ctx.beginPath();
-  ctx.arc(0, -70 * state.scale, 15 * state.scale, 0, 2 * Math.PI);
+  // Move the face slightly higher and more upright by adjusting the y offset and reducing the tilt
+  ctx.arc(0, -74 * state.scale, 15 * state.scale, 0, 2 * Math.PI);
   ctx.fillStyle = 'black';
   ctx.shadowColor = 'black';
   ctx.shadowBlur = 3 * state.scale;
   ctx.fill();
   ctx.shadowBlur = 0;
 
-  // Eyes
+  // Eyes (move up with the face)
   ctx.beginPath();
-  ctx.arc(-5 * state.scale, -74 * state.scale, 2.5 * state.scale, 0, 2 * Math.PI);
-  ctx.arc(5 * state.scale, -74 * state.scale, 2.5 * state.scale, 0, 2 * Math.PI);
+  ctx.arc(-5 * state.scale, -78 * state.scale, 2.5 * state.scale, 0, 2 * Math.PI);
+  ctx.arc(5 * state.scale, -78 * state.scale, 2.5 * state.scale, 0, 2 * Math.PI);
   ctx.fillStyle = 'white';
   ctx.fill();
 
-  // Smile
+  // Smile (move up with the face)
   ctx.beginPath();
-  ctx.arc(0, -67 * state.scale, 6 * state.scale, 0, Math.PI, false);
+  ctx.arc(0, -71 * state.scale, 6 * state.scale, 0, Math.PI, false);
   ctx.lineWidth = 2 * state.scale;
   ctx.strokeStyle = 'white';
   ctx.stroke();
@@ -310,8 +313,8 @@ function drawBomb() {
 function calculateScale() {
   const last = state.buildings[state.buildings.length - 1];
   const totalW = last.x + last.width;
-  const maxH   = Math.max(...state.buildings.map(b => b.height));
-  state.scale   = Math.min(canvas.width / totalW, canvas.height / (maxH + 200));
+  const maxH = Math.max(...state.buildings.map(b => b.height));
+  state.scale = Math.min(canvas.width / totalW, canvas.height / (maxH + 200));
   state.offsetX = (canvas.width - totalW * state.scale) / 2;
   state.offsetY = 0;
 }
@@ -320,10 +323,10 @@ function generateBuildings() {
   const arr = [];
   for (let i = 0; i < 9; i++) {
     const prev = arr[i - 1];
-    const x    = prev ? prev.x + prev.width + 4 : 0;
-    const w    = 80 + Math.random() * 40;
+    const x = prev ? prev.x + prev.width + 4 : 0;
+    const w = 80 + Math.random() * 40;
     const plat = (i === 1 || i === 6);
-    const h    = plat ? 30 + Math.random() * 120 : 40 + Math.random() * 260;
+    const h = plat ? 30 + Math.random() * 120 : 40 + Math.random() * 260;
 
     // --- Generate static windows for this building ---
     const winRows = Math.floor(h / 28);
@@ -361,9 +364,9 @@ function updateBombGrabArea() {
   const b = getGorillaBuilding(state.currentPlayer);
   const cx = (b.x + b.width / 2) * state.scale + state.offsetX;
   const cy = canvas.height - ((b.y + b.height + GORILLA_BODY_CENTER_Y) * state.scale + state.offsetY);
-  bombGrabAreaDOM.style.left   = `${cx - r}px`;
-  bombGrabAreaDOM.style.top    = `${cy - r}px`;
-  bombGrabAreaDOM.style.width  = `${r * 2}px`;
+  bombGrabAreaDOM.style.left = `${cx - r}px`;
+  bombGrabAreaDOM.style.top = `${cy - r}px`;
+  bombGrabAreaDOM.style.width = `${r * 2}px`;
   bombGrabAreaDOM.style.height = `${r * 2}px`;
 }
 
@@ -401,10 +404,10 @@ function updateInfo(dx, dy) {
   const speed = Math.hypot(dx, dy);
   const angle = Math.atan2(-dy, dx) * 180 / Math.PI;
   if (state.currentPlayer === 1) {
-    angle1DOM.innerText    = Math.round(angle);
+    angle1DOM.innerText = Math.round(angle);
     velocity1DOM.innerText = Math.round(speed);
   } else {
-    angle2DOM.innerText    = Math.round(angle);
+    angle2DOM.innerText = Math.round(angle);
     velocity2DOM.innerText = Math.round(speed);
   }
 }
@@ -450,7 +453,7 @@ function animate(ts) {
   for (let i = 0; i < steps; i++) {
     moveBomb(dt / steps);
 
-    if (checkFrameHit())   return handleMiss();
+    if (checkFrameHit()) return handleMiss();
     if (checkGorillaHit()) return handleHit();
     if (checkBuildingHit(enemy)) return handleMiss();
   }
@@ -508,7 +511,7 @@ function checkGorillaHit() {
 function announceWinner() {
   winnerDOM.innerText = `Player ${state.currentPlayer}`;
   congratulationsDOM.style.visibility = 'visible';
-  congratulationsDOM.setAttribute('tabindex','-1');
+  congratulationsDOM.setAttribute('tabindex', '-1');
   congratulationsDOM.focus();
 }
 
@@ -516,7 +519,7 @@ function resizeCanvasToContainer() {
   const container = document.querySelector('.game-container');
   if (!container) return;
   const rect = container.getBoundingClientRect();
-  canvas.width  = rect.width;
+  canvas.width = rect.width;
   canvas.height = rect.height;
   calculateScale();
   initializeBombPosition();

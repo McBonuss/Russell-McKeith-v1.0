@@ -122,7 +122,7 @@ canvas {
   width: 40px; /* 2 * grabAreaRadius */
   height: 40px; /* 2 * grabAreaRadius */
   border-radius: 50%;
-  background-color: rgba(255, 0, 0, 0.3); /* Optional: Add a semi-transparent color for debugging */
+  background-color: rgba(203, 198, 212, 0.194); /* Optional: Add a semi-transparent color for debugging */
   cursor: grab;
 }
 
@@ -187,4 +187,57 @@ canvas {
   border-radius: 4px;
   font-weight: bold;
   outline: 2px solid #000;
+}
+
+/* Expandable Card Styles */
+.expandable-card {
+  border-radius: 12px;
+  margin-bottom: 2em;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  overflow: hidden;
+  border: 1px solid #222;
+  background: rgba(40,40,40,0.85);
+  transition: box-shadow 0.2s;
+  max-width: 840px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.expandable-header {
+  cursor: pointer;
+  background: #22284a;
+  color: #ffe600; /* Make header text the same yellow as the main title */
+  padding: 1.2em 1.5em;
+  font-size: 1.1em;
+  font-weight: bold;
+  user-select: none;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-shadow: 1px 1px 0 #000;
+  font-family: 'Press Start 2P', monospace, cursive;
+}
+.expandable-header:focus {
+  box-shadow: 0 0 0 2px #ffe674;
+}
+.expandable-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(.4,0,.2,1), padding 0.3s;
+  background: rgba(40,40,40,0.85);
+  color: #fff;
+  padding: 0 1.5em;
+}
+.expandable-card.expanded .expandable-content {
+  padding: 1em 1.5em;
+  max-height: 1000px;
+  transition: max-height 0.5s cubic-bezier(.4,0,.2,1), padding 0.3s;
+}
+.expandable-arrow {
+  transition: transform 0.3s;
+  margin-left: 0.5em;
+}
+.expandable-card.expanded .expandable-arrow {
+  transform: rotate(90deg);
 }
