@@ -5,6 +5,8 @@ const BOMB_RADIUS = 10;              // Radius of the bomb
 const DEBUG = true;
 let debugSamples = [];
 
+let stars = [];
+
 // --- State ---
 let state = {};
 
@@ -39,11 +41,12 @@ function newGame() {
     scale: 1,
     offsetX: 0,
     offsetY: 0,
-    phase: "aiming",       // aiming | in flight | celebrating
+    phase: "aiming",
     currentPlayer: 1,
     bomb: { x: 0, y: 0, velocity: { x: 0, y: 0 } },
     buildings: generateBuildings(),
   };
+  generateStars(); // <-- Add this line
   calculateScale();
   initializeBombPosition();
   hideCongrats();
@@ -83,13 +86,13 @@ function drawBackground() {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Draw stars
-  for (let i = 0; i < 80; i++) {
-    let sx = Math.random() * canvas.width;
-    let sy = Math.random() * (canvas.height * 0.75);
-    let r = Math.random() * 1.5 + 0.2;
+  // Draw stars (static)
+  for (let i = 0; i < stars.length; i++) {
+    let sx = stars[i].x * canvas.width;
+    let sy = stars[i].y * canvas.height;
+    let r = stars[i].r;
     ctx.save();
-    ctx.globalAlpha = Math.random() * 0.5 + 0.4;
+    ctx.globalAlpha = stars[i].alpha;
     ctx.beginPath();
     ctx.arc(sx, sy, r, 0, 2 * Math.PI);
     ctx.fillStyle = "#ffffff";
@@ -125,7 +128,7 @@ function drawBackground() {
 function drawBuildings() {
   state.buildings.forEach((b, i) => {
     // Main building colour (darker)
-    const shade = 16 + i * 10; // Lower base and increment for a darker look
+    const shade = 16 + i * 10;
     ctx.fillStyle = `rgb(${20+shade},${36+shade},${56+shade})`;
     ctx.fillRect(
       b.x * state.scale + state.offsetX,
@@ -143,22 +146,18 @@ function drawBuildings() {
       b.height * state.scale
     );
 
-    // Windows (less flicker)
+    // --- Draw static windows ---
     const winRows = Math.floor(b.height / 28);
     const winCols = Math.floor(b.width / 20);
-    for (let row = 0; row < winRows; row++) {
-      for (let col = 0; col < winCols; col++) {
-        if ((col > 0 && col < winCols - 1) && Math.random() < 0.7) {
-          ctx.fillStyle = Math.random() < 0.85 ? '#fff9a0' : '#bbe8fa';
-          ctx.fillRect(
-            b.x * state.scale + state.offsetX + 8 + col * 14,
-            canvas.height - (b.height * state.scale + state.offsetY) + 8 + row * 18,
-            8,
-            8
-          );
-        }
-      }
-    }
+    b.windows.forEach(win => {
+      ctx.fillStyle = win.color;
+      ctx.fillRect(
+        b.x * state.scale + state.offsetX + 8 + win.col * 14,
+        canvas.height - (b.height * state.scale + state.offsetY) + 8 + win.row * 18,
+        8,
+        8
+      );
+    });
 
     // Simple antenna for a few buildings
     if (i % 4 === 0) {
@@ -274,24 +273,39 @@ function drawBomb() {
   const bx = state.bomb.x * state.scale + state.offsetX;
   const by = canvas.height - (state.bomb.y * state.scale + state.offsetY);
 
-  if (state.phase === 'aiming') {
-    ctx.strokeStyle = 'rgba(255,255,255,0.8)';
-    ctx.setLineDash([3,8]);
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(bx, by);
-    ctx.lineTo(
-      bx + state.bomb.velocity.x * state.scale,
-      by - state.bomb.velocity.y * state.scale
-    );
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
-
-  ctx.fillStyle = 'white';
+  // Bomb body
   ctx.beginPath();
   ctx.arc(bx, by, BOMB_RADIUS * state.scale, 0, 2 * Math.PI);
+  ctx.fillStyle = '#fff';
+  ctx.shadowColor = '#ffe674';
+  ctx.shadowBlur = 8;
   ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = '#444';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Fuse (wiggle it with time!)
+  ctx.save();
+  ctx.strokeStyle = '#9c6f28';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(bx + 9 * state.scale, by - 8 * state.scale);
+  let fuseEndX = bx + 18 * state.scale + 2 * Math.sin(Date.now() / 80);
+  let fuseEndY = by - 17 * state.scale + 2 * Math.cos(Date.now() / 80);
+  ctx.lineTo(fuseEndX, fuseEndY);
+  ctx.stroke();
+  ctx.restore();
+
+  // Spark at end of fuse
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(fuseEndX, fuseEndY, 3.5 * state.scale, 0, 2 * Math.PI);
+  ctx.fillStyle = 'orange';
+  ctx.globalAlpha = 0.7 + 0.3 * Math.sin(Date.now() / 80);
+  ctx.fill();
+  ctx.restore();
+
   ctx.restore();
 }
 
@@ -313,7 +327,24 @@ function generateBuildings() {
     const w    = 80 + Math.random() * 40;
     const plat = (i === 1 || i === 6);
     const h    = plat ? 30 + Math.random() * 120 : 40 + Math.random() * 260;
-    arr.push({ x, y: 0, width: w, height: h });
+
+    // --- Generate static windows for this building ---
+    const winRows = Math.floor(h / 28);
+    const winCols = Math.floor(w / 20);
+    const windows = [];
+    for (let row = 0; row < winRows; row++) {
+      for (let col = 0; col < winCols; col++) {
+        if ((col > 0 && col < winCols - 1) && Math.random() < 0.7) {
+          windows.push({
+            row,
+            col,
+            color: Math.random() < 0.85 ? '#fff9a0' : '#bbe8fa'
+          });
+        }
+      }
+    }
+
+    arr.push({ x, y: 0, width: w, height: h, windows });
   }
   return arr;
 }
@@ -517,4 +548,16 @@ function drawDebugDots() {
   });
   ctx.globalAlpha = 1;
   ctx.restore();
+}
+
+function generateStars(count = 80) {
+  stars = [];
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: Math.random(),
+      y: Math.random() * 0.75,
+      r: Math.random() * 1.5 + 0.2,
+      alpha: Math.random() * 0.5 + 0.4
+    });
+  }
 }
