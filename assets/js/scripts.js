@@ -2,8 +2,6 @@
 const GORILLA_BODY_CENTER_Y = 50;    // Y offset for the gorilla's body center (from feet)
 const GORILLA_BODY_RADIUS = 50;      // Radius of the gorilla's body hitbox
 const BOMB_RADIUS = 10;              // Radius of the bomb
-const DEBUG = true;
-let debugSamples = [];
 
 let stars = [];
 
@@ -46,7 +44,7 @@ function newGame() {
     bomb: { x: 0, y: 0, velocity: { x: 0, y: 0 } },
     buildings: generateBuildings(),
   };
-  generateStars(); // <-- Add this line
+  generateStars();
   calculateScale();
   initializeBombPosition();
   hideCongrats();
@@ -67,7 +65,6 @@ function getGorillaOrigin(player) {
 }
 
 // --- Drawing ---
-
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -460,7 +457,6 @@ function animate(ts) {
 
   updateBombGrabArea();
   draw();
-  if (DEBUG) drawDebugDots();
   lastTs = ts;
   requestAnimationFrame(animate);
 }
@@ -508,7 +504,6 @@ function checkGorillaHit() {
   return false;
 }
 
-
 // --- UI Helpers ---
 function announceWinner() {
   winnerDOM.innerText = `Player ${state.currentPlayer}`;
@@ -529,25 +524,10 @@ function resizeCanvasToContainer() {
   updateBombGrabArea();
 }
 
-
 function checkOrientation() {
   const msg = document.getElementById('rotate-message');
   const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   msg.style.display = (isMobile && window.innerWidth < window.innerHeight) ? 'flex' : 'none';
-}
-
-// Add this function at the end of your file:
-function drawDebugDots() {
-  ctx.save();
-  debugSamples.forEach(({ x, y, hit }) => {
-    ctx.beginPath();
-    ctx.arc(x, y, 4, 0, 2 * Math.PI);
-    ctx.fillStyle = hit ? 'red' : 'blue';
-    ctx.globalAlpha = 0.7;
-    ctx.fill();
-  });
-  ctx.globalAlpha = 1;
-  ctx.restore();
 }
 
 function generateStars(count = 80) {
