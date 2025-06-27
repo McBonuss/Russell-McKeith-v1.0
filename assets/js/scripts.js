@@ -353,18 +353,29 @@ function animate(timestamp) {
   const hitDetectionPrecision = 50;
   for (let i = 0; i < hitDetectionPrecision; i++) {
     moveBomb(elapsedTime / hitDetectionPrecision);
-    const miss = checkFrameHit() || checkBuildingHit() ;
-    const hit = checkGorillaHit();
-    if (miss) {
-      state.currentPlayer = state.currentPlayer === 1 ? 2 : 1;
+
+    // 1) check for frame-out first
+    if (checkFrameHit()) {
+      state.currentPlayer = 3 - state.currentPlayer; // swap 1⇄2
       state.phase = "aiming";
       initializeBombPosition();
       draw();
       return;
     }
-    if (hit) {
+
+    // 2) check whether we actually hit the enemy gorilla
+    if (checkGorillaHit()) {
       state.phase = "celebrating";
       announceWinner();
+      draw();
+      return;
+    }
+
+    // 3) only now check for building hits (skipping the enemy’s building)
+    if (checkBuildingHit(3 - state.currentPlayer)) {
+      state.currentPlayer = 3 - state.currentPlayer;
+      state.phase = "aiming";
+      initializeBombPosition();
       draw();
       return;
     }
