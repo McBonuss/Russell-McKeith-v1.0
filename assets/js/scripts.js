@@ -53,8 +53,8 @@ function newGame() {
 
 // --- Utility ---
 function getGorillaBuilding(player) {
-  // Player 1 on second building, Player 2 on sixth
-  const idx = player === 1 ? 1 : state.buildings.length - 3;
+  // Player 1 on second building, Player 2 on seventh (one to the right)
+  const idx = player === 1 ? 1 : state.buildings.length - 2;
   return state.buildings[idx];
 }
 
@@ -76,19 +76,72 @@ function draw() {
 }
 
 function drawBackground() {
-  ctx.fillStyle = '#58A8D8';
+  // Sky gradient
+  let gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  gradient.addColorStop(0, '#90d0f0');
+  gradient.addColorStop(1, '#3180c5');
+  ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Sun
+  let sunX = canvas.width - 100;
+  let sunY = 100;
+  let sunRadius = 40;
+  ctx.save();
+  ctx.globalAlpha = 0.7;
+  ctx.beginPath();
+  ctx.arc(sunX, sunY, sunRadius, 0, 2 * Math.PI);
+  ctx.fillStyle = 'yellow';
+  ctx.shadowColor = 'yellow';
+  ctx.shadowBlur = 40;
+  ctx.fill();
+  ctx.globalAlpha = 1.0;
+  ctx.restore();
 }
 
 function drawBuildings() {
   state.buildings.forEach(b => {
-    ctx.fillStyle = '#152A47';
+    // Building body
+    ctx.fillStyle = '#24384c';
     ctx.fillRect(
       b.x * state.scale + state.offsetX,
       canvas.height - (b.height * state.scale + state.offsetY),
       b.width * state.scale,
       b.height * state.scale
     );
+
+    // Windows
+    const winRows = Math.floor(b.height / 30);
+    const winCols = Math.floor(b.width / 22);
+    for (let row = 0; row < winRows; row++) {
+      for (let col = 0; col < winCols; col++) {
+        if (Math.random() < 0.75) {
+          ctx.fillStyle = Math.random() < 0.85 ? '#f6f6a7' : '#bcd9ee';
+          ctx.fillRect(
+            b.x * state.scale + state.offsetX + 5 + col * 18,
+            canvas.height - (b.height * state.scale + state.offsetY) + 6 + row * 22,
+            12,
+            10
+          );
+        }
+      }
+    }
+
+    // Rooftop antenna for random buildings
+    if (Math.random() < 0.25) {
+      ctx.beginPath();
+      ctx.moveTo(
+        (b.x + b.width / 2) * state.scale + state.offsetX,
+        canvas.height - (b.height * state.scale + state.offsetY)
+      );
+      ctx.lineTo(
+        (b.x + b.width / 2) * state.scale + state.offsetX,
+        canvas.height - (b.height * state.scale + state.offsetY) - 16
+      );
+      ctx.strokeStyle = '#b7b7b7';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
   });
 }
 
