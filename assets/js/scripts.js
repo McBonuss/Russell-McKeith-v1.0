@@ -121,9 +121,10 @@ function drawGorillaBody() {
 }
 
 function drawGorillaLeftArm(player) {
-  // Only Player 1’s left arm goes up when aiming (or during celebration)
-  const raising = player === 1 &&
-    ((state.phase === 'aiming' && state.currentPlayer === 1) || state.phase === 'celebrating');
+  // Left arm is up only if Player 1 is aiming or if celebrating and this player won
+  const raising =
+    (state.phase === 'aiming' && state.currentPlayer === 1 && player === 1) ||
+    (state.phase === 'celebrating' && state.currentPlayer === player);
   ctx.strokeStyle = 'black';
   ctx.lineWidth = 18 * state.scale;
   ctx.beginPath();
@@ -138,9 +139,10 @@ function drawGorillaLeftArm(player) {
 }
 
 function drawGorillaRightArm(player) {
-  // Only Player 2’s right arm goes up when aiming (or during celebration)
-  const raising = player === 2 &&
-    ((state.phase === 'aiming' && state.currentPlayer === 2) || state.phase === 'celebrating');
+  // Right arm is up only if Player 2 is aiming or if celebrating and this player won
+  const raising =
+    (state.phase === 'aiming' && state.currentPlayer === 2 && player === 2) ||
+    (state.phase === 'celebrating' && state.currentPlayer === player);
   ctx.strokeStyle = 'black';
   ctx.lineWidth = 18 * state.scale;
   ctx.beginPath();
