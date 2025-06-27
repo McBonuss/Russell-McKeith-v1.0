@@ -20,6 +20,8 @@ const congratulationsDOM = document.getElementById("congratulations");
 const winnerDOM = document.getElementById("winner");
 const newGameButtonDOM = document.getElementById("new-game");
 
+canvas.style.touchAction = "none";
+
 // --- Initialization ---
 newGameButtonDOM.addEventListener("click", newGame);
 window.addEventListener('resize', resizeCanvasToContainer);
@@ -130,14 +132,15 @@ function drawGorilla(player) {
 function drawGorillaBody() {
   ctx.fillStyle = "black";
   ctx.beginPath();
+  // Adjusted polygon to better fit the visible gorilla
   ctx.moveTo(0, -20 * state.scale);
-  ctx.lineTo(-10 * state.scale, 0);
-  ctx.lineTo(-25 * state.scale, 0);
-  ctx.lineTo(-18 * state.scale, -80 * state.scale);
+  ctx.lineTo(-12 * state.scale, 0);
+  ctx.lineTo(-22 * state.scale, 10 * state.scale);
+  ctx.lineTo(-18 * state.scale, -70 * state.scale);
   ctx.lineTo(0, -95 * state.scale);
-  ctx.lineTo(18 * state.scale, -80 * state.scale);
-  ctx.lineTo(25 * state.scale, 0);
-  ctx.lineTo(10 * state.scale, 0);
+  ctx.lineTo(18 * state.scale, -70 * state.scale);
+  ctx.lineTo(22 * state.scale, 10 * state.scale);
+  ctx.lineTo(12 * state.scale, 0);
   ctx.closePath();
   ctx.fill();
 }
@@ -350,7 +353,7 @@ function animate(timestamp) {
   const hitDetectionPrecision = 50;
   for (let i = 0; i < hitDetectionPrecision; i++) {
     moveBomb(elapsedTime / hitDetectionPrecision);
-    const miss = checkFrameHit() || checkBuildingHit();
+    const miss = checkFrameHit() || checkBuildingHit() ;
     const hit = checkGorillaHit();
     if (miss) {
       state.currentPlayer = state.currentPlayer === 1 ? 2 : 1;
@@ -372,18 +375,19 @@ function animate(timestamp) {
   requestAnimationFrame(animate);
 }
 
-function checkBuildingHit() {
-  for (const building of state.buildings) {
-    if (
+function checkBuildingHit(skipPlayer = null) {
+  return state.buildings.some((building, idx) => {
+    // skip the building under the given player
+    if (skipPlayer === 1 && idx === LEFT_GORILLA_INDEX)  return false;
+    if (skipPlayer === 2 && idx === RIGHT_GORILLA_INDEX) return false;
+
+    return (
       state.bomb.x >= building.x &&
       state.bomb.x <= building.x + building.width &&
       state.bomb.y >= building.y &&
       state.bomb.y <= building.y + building.height
-    ) {
-      return true;
-    }
-  }
-  return false;
+    );
+  });
 }
 
 function checkFrameHit() {
@@ -409,10 +413,13 @@ function checkGorillaHit() {
 
   ctx.save();
   ctx.translate(cx, cy);
+
+  // Draw body path for hit detection
   drawGorillaBody();
 
+  // Check the bomb's center and 8 points around its edge for body
   let hit = false;
-  for (let a = 0; a < 2 * Math.PI; a += Math.PI / 8) {
+  for (let a = 0; a < 2 * Math.PI; a += Math.PI / 4) {
     const px = bombLocalX + BOMB_RADIUS * state.scale * Math.cos(a);
     const py = bombLocalY + BOMB_RADIUS * state.scale * Math.sin(a);
     if (ctx.isPointInPath(px, py)) {
@@ -420,19 +427,33 @@ function checkGorillaHit() {
       break;
     }
   }
+
+  // Check left arm (stroke)
   if (!hit) {
-    ctx.beginPath();
-    ctx.arc(0, -GORILLA_BODY_CENTER_Y * state.scale, GORILLA_BODY_RADIUS * state.scale, 0, 2 * Math.PI);
-    ctx.closePath();
-    for (let a = 0; a < 2 * Math.PI; a += Math.PI / 8) {
+    drawGorillaLeftArm(enemyPlayer);
+    for (let a = 0; a < 2 * Math.PI; a += Math.PI / 4) {
       const px = bombLocalX + BOMB_RADIUS * state.scale * Math.cos(a);
       const py = bombLocalY + BOMB_RADIUS * state.scale * Math.sin(a);
-      if (ctx.isPointInPath(px, py)) {
+      if (ctx.isPointInStroke(px, py)) {
         hit = true;
         break;
       }
     }
   }
+
+  // Check right arm (stroke)
+  if (!hit) {
+    drawGorillaRightArm(enemyPlayer);
+    for (let a = 0; a < 2 * Math.PI; a += Math.PI / 4) {
+      const px = bombLocalX + BOMB_RADIUS * state.scale * Math.cos(a);
+      const py = bombLocalY + BOMB_RADIUS * state.scale * Math.sin(a);
+      if (ctx.isPointInStroke(px, py)) {
+        hit = true;
+        break;
+      }
+    }
+  }
+
   ctx.restore();
   return hit;
 }
