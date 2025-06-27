@@ -76,33 +76,57 @@ function draw() {
 }
 
 function drawBackground() {
-  // Sky gradient
+  // Night sky gradient
   let gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  gradient.addColorStop(0, 'darkblue');
-  gradient.addColorStop(1, 'blue');
+  gradient.addColorStop(0, "#1a174a");
+  gradient.addColorStop(1, "#24365a");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Sun
-  let sunX = canvas.width - 100;
-  let sunY = 100;
-  let sunRadius = 20;
+  // Draw stars
+  for (let i = 0; i < 80; i++) {
+    let sx = Math.random() * canvas.width;
+    let sy = Math.random() * (canvas.height * 0.75);
+    let r = Math.random() * 1.5 + 0.2;
+    ctx.save();
+    ctx.globalAlpha = Math.random() * 0.5 + 0.4;
+    ctx.beginPath();
+    ctx.arc(sx, sy, r, 0, 2 * Math.PI);
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Draw moon (with a little shadow)
+  let moonX = canvas.width - 120;
+  let moonY = 100;
+  let moonRadius = 38;
   ctx.save();
-  ctx.globalAlpha = 0.7;
+  ctx.globalAlpha = 0.9;
   ctx.beginPath();
-  ctx.arc(sunX, sunY, sunRadius, 0, 2 * Math.PI);
-  ctx.fillStyle = 'white';
-  ctx.shadowColor = 'grey';
-  ctx.shadowBlur = 40;
+  ctx.arc(moonX, moonY, moonRadius, 0, 2 * Math.PI);
+  ctx.fillStyle = "#eae8e0";
+  ctx.shadowColor = "#eee";
+  ctx.shadowBlur = 35;
   ctx.fill();
   ctx.globalAlpha = 1.0;
+  // Draw subtle craters
+  ctx.beginPath();
+  ctx.arc(moonX + 13, moonY - 8, 6, 0, 2 * Math.PI);
+  ctx.arc(moonX - 17, moonY + 12, 4, 0, 2 * Math.PI);
+  ctx.arc(moonX + 5, moonY + 16, 2.5, 0, 2 * Math.PI);
+  ctx.arc(moonX - 9, moonY - 13, 2, 0, 2 * Math.PI);
+  ctx.fillStyle = "#d4d2c3";
+  ctx.globalAlpha = 0.3;
+  ctx.fill();
   ctx.restore();
 }
 
 function drawBuildings() {
-  state.buildings.forEach(b => {
-    // Building body
-    ctx.fillStyle = '#24384c';
+  state.buildings.forEach((b, i) => {
+    // Main building colour (darker)
+    const shade = 16 + i * 10; // Lower base and increment for a darker look
+    ctx.fillStyle = `rgb(${20+shade},${36+shade},${56+shade})`;
     ctx.fillRect(
       b.x * state.scale + state.offsetX,
       canvas.height - (b.height * state.scale + state.offsetY),
@@ -110,25 +134,34 @@ function drawBuildings() {
       b.height * state.scale
     );
 
-    // Windows
-    const winRows = Math.floor(b.height / 30);
-    const winCols = Math.floor(b.width / 22);
+    // "3D" highlight (left edge)
+    ctx.fillStyle = `rgba(255,255,255,0.10)`;
+    ctx.fillRect(
+      b.x * state.scale + state.offsetX,
+      canvas.height - (b.height * state.scale + state.offsetY),
+      8,
+      b.height * state.scale
+    );
+
+    // Windows (less flicker)
+    const winRows = Math.floor(b.height / 28);
+    const winCols = Math.floor(b.width / 20);
     for (let row = 0; row < winRows; row++) {
       for (let col = 0; col < winCols; col++) {
-        if (Math.random() < 0.75) {
-          ctx.fillStyle = Math.random() < 0.85 ? '#f6f6a7' : '#bcd9ee';
+        if ((col > 0 && col < winCols - 1) && Math.random() < 0.7) {
+          ctx.fillStyle = Math.random() < 0.85 ? '#fff9a0' : '#bbe8fa';
           ctx.fillRect(
-            b.x * state.scale + state.offsetX + 5 + col * 18,
-            canvas.height - (b.height * state.scale + state.offsetY) + 6 + row * 22,
-            12,
-            10
+            b.x * state.scale + state.offsetX + 8 + col * 14,
+            canvas.height - (b.height * state.scale + state.offsetY) + 8 + row * 18,
+            8,
+            8
           );
         }
       }
     }
 
-    // Rooftop antenna for random buildings
-    if (Math.random() < 0.25) {
+    // Simple antenna for a few buildings
+    if (i % 4 === 0) {
       ctx.beginPath();
       ctx.moveTo(
         (b.x + b.width / 2) * state.scale + state.offsetX,
@@ -138,8 +171,8 @@ function drawBuildings() {
         (b.x + b.width / 2) * state.scale + state.offsetX,
         canvas.height - (b.height * state.scale + state.offsetY) - 16
       );
-      ctx.strokeStyle = '#b7b7b7';
-      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#bbbbbb';
+      ctx.lineWidth = 2;
       ctx.stroke();
     }
   });
