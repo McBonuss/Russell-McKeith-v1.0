@@ -199,14 +199,16 @@ canvas {
   background: rgba(40,40,40,0.85);
   transition: box-shadow 0.2s;
   max-width: 840px;
-  width: 100%;
+  width: 95vw;
   margin-left: auto;
   margin-right: auto;
+  font-family: 'Press Start 2P', monospace, cursive;
 }
+
 .expandable-header {
   cursor: pointer;
   background: #22284a;
-  color: #ffe600; /* Make header text the same yellow as the main title */
+  color: #ffe600;
   padding: 1.2em 1.5em;
   font-size: 1.1em;
   font-weight: bold;
@@ -218,9 +220,11 @@ canvas {
   text-shadow: 1px 1px 0 #000;
   font-family: 'Press Start 2P', monospace, cursive;
 }
+
 .expandable-header:focus {
   box-shadow: 0 0 0 2px #ffe674;
 }
+
 .expandable-content {
   max-height: 0;
   overflow: hidden;
@@ -228,16 +232,41 @@ canvas {
   background: rgba(40,40,40,0.85);
   color: #fff;
   padding: 0 1.5em;
+  font-size: 1em;
+  font-family: 'Press Start 2P', monospace, cursive;
+  letter-spacing: 0.2px;
+  line-height: 1.7;
 }
+
 .expandable-card.expanded .expandable-content {
   padding: 1em 1.5em;
   max-height: 1000px;
   transition: max-height 0.5s cubic-bezier(.4,0,.2,1), padding 0.3s;
 }
+
 .expandable-arrow {
   transition: transform 0.3s;
   margin-left: 0.5em;
 }
+
 .expandable-card.expanded .expandable-arrow {
   transform: rotate(90deg);
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .expandable-card {
+    max-width: 99vw;
+    margin: 1em 0.5vw;
+    border-radius: 8px;
+  }
+  .expandable-header {
+    padding: 1em 0.7em;
+    font-size: 0.95em;
+  }
+  .expandable-content,
+  .expandable-card.expanded .expandable-content {
+    padding: 0.7em 0.7em;
+    font-size: 0.95em;
+  }
 }
