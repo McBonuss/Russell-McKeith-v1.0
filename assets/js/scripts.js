@@ -2,6 +2,8 @@
 const GORILLA_BODY_CENTER_Y = 50;    // Y offset for the gorilla's body center (from feet)
 const GORILLA_BODY_RADIUS = 50;      // Radius of the gorilla's body hitbox
 const BOMB_RADIUS = 10;              // Radius of the bomb
+const DEBUG = true;
+let debugSamples = [];
 
 // --- State ---
 let state = {};
@@ -325,6 +327,7 @@ function animate(ts) {
 
   updateBombGrabArea();
   draw();
+  if (DEBUG) drawDebugDots();
   lastTs = ts;
   requestAnimationFrame(animate);
 }
@@ -371,42 +374,58 @@ function checkGorillaHit() {
 
   ctx.save();
   ctx.translate(cx, cy);
+
+  // For debugging: collect all sample points
+  if (DEBUG) debugSamples = [];
+
   drawGorillaBody();
 
+  let hit = false;
   // body hit
   for (let a = 0; a < 2 * Math.PI; a += Math.PI / 4) {
     const px = rx + BOMB_RADIUS * state.scale * Math.cos(a);
     const py = ry + BOMB_RADIUS * state.scale * Math.sin(a);
-    if (ctx.isPointInPath(px, py)) {
-      ctx.restore();
-      return true;
+    const inPath = ctx.isPointInPath(px, py);
+    if (DEBUG) debugSamples.push({ x: cx + px, y: cy + py, hit: inPath });
+    if (inPath) {
+      hit = true;
+      break;
     }
   }
 
-  // arm hits
-  drawGorillaLeftArm(enemy);
-  for (let a = 0; a < 2 * Math.PI; a += Math.PI / 4) {
-    const px = rx + BOMB_RADIUS * state.scale * Math.cos(a);
-    const py = ry + BOMB_RADIUS * state.scale * Math.sin(a);
-    if (ctx.isPointInStroke(px, py)) {
-      ctx.restore();
-      return true;
+  // arms
+  if (!hit) {
+    drawGorillaLeftArm(enemy);
+    for (let a = 0; a < 2 * Math.PI; a += Math.PI / 4) {
+      const px = rx + BOMB_RADIUS * state.scale * Math.cos(a);
+      const py = ry + BOMB_RADIUS * state.scale * Math.sin(a);
+      const inStroke = ctx.isPointInStroke(px, py);
+      if (DEBUG) debugSamples.push({ x: cx + px, y: cy + py, hit: inStroke });
+      if (inStroke) {
+        hit = true;
+        break;
+      }
     }
   }
 
-  drawGorillaRightArm(enemy);
-  for (let a = 0; a < 2 * Math.PI; a += Math.PI / 4) {
-    const px = rx + BOMB_RADIUS * state.scale * Math.cos(a);
-    const py = ry + BOMB_RADIUS * state.scale * Math.sin(a);
-    if (ctx.isPointInStroke(px, py)) {
-      ctx.restore();
-      return true;
+  if (!hit) {
+    drawGorillaRightArm(enemy);
+    for (let a = 0; a < 2 * Math.PI; a += Math.PI / 4) {
+      const px = rx + BOMB_RADIUS * state.scale * Math.cos(a);
+      const py = ry + BOMB_RADIUS * state.scale * Math.sin(a);
+      const inStroke = ctx.isPointInStroke(px, py);
+      if (DEBUG) debugSamples.push({ x: cx + px, y: cy + py, hit: inStroke });
+      if (inStroke) {
+        hit = true;
+        break;
+      }
     }
   }
 
   ctx.restore();
-  return false;
+  return hit;
 }
+
 
 // --- UI Helpers ---
 function announceWinner() {
@@ -433,4 +452,18 @@ function checkOrientation() {
   const msg = document.getElementById('rotate-message');
   const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   msg.style.display = (isMobile && window.innerWidth < window.innerHeight) ? 'flex' : 'none';
+}
+
+// Add this function at the end of your file:
+function drawDebugDots() {
+  ctx.save();
+  debugSamples.forEach(({ x, y, hit }) => {
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, 2 * Math.PI);
+    ctx.fillStyle = hit ? 'red' : 'blue';
+    ctx.globalAlpha = 0.7;
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+  ctx.restore();
 }
