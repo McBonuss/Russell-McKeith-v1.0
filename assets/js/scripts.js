@@ -400,6 +400,41 @@ window.addEventListener('mouseup', () => {
   throwBomb();
 });
 
+// Touch start
+bombGrabAreaDOM.addEventListener('touchstart', function(e) {
+  if (state.phase === 'aiming') {
+    isDragging = true;
+    const touch = e.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+    document.body.style.cursor = 'grabbing';
+    e.preventDefault();
+  }
+}, { passive: false });
+
+// Touch move
+window.addEventListener('touchmove', function(e) {
+  if (!isDragging) return;
+  const touch = e.touches[0];
+  const dx = (touch.clientX - startX) / state.scale;
+  const dy = (startY - touch.clientY) / state.scale;
+  state.bomb.velocity.x = -dx;
+  state.bomb.velocity.y = -dy;
+  updateInfo(dx, dy);
+  updateBombGrabArea();
+  draw();
+  e.preventDefault();
+}, { passive: false });
+
+// Touch end
+window.addEventListener('touchend', function(e) {
+  if (!isDragging) return;
+  isDragging = false;
+  document.body.style.cursor = 'default';
+  throwBomb();
+  e.preventDefault();
+}, { passive: false });
+
 function updateInfo(dx, dy) {
   const speed = Math.hypot(dx, dy);
   const angle = Math.atan2(-dy, dx) * 180 / Math.PI;

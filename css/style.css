@@ -2,7 +2,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: monospace;
-  font-size: 1rem;
+  font-size: 0.5rem;
   color: #fff;
   user-select: none;
   -webkit-user-select: none;
@@ -124,6 +124,7 @@ canvas {
   border-radius: 50%;
   background-color: rgba(203, 198, 212, 0.194); /* Optional: Add a semi-transparent color for debugging */
   cursor: grab;
+  touch-action: none;
 }
 
 #congratulations {
