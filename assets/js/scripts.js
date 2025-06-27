@@ -78,21 +78,21 @@ function draw() {
 function drawBackground() {
   // Sky gradient
   let gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  gradient.addColorStop(0, '#90d0f0');
-  gradient.addColorStop(1, '#3180c5');
+  gradient.addColorStop(0, 'darkblue');
+  gradient.addColorStop(1, 'blue');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Sun
   let sunX = canvas.width - 100;
   let sunY = 100;
-  let sunRadius = 40;
+  let sunRadius = 20;
   ctx.save();
   ctx.globalAlpha = 0.7;
   ctx.beginPath();
   ctx.arc(sunX, sunY, sunRadius, 0, 2 * Math.PI);
-  ctx.fillStyle = 'yellow';
-  ctx.shadowColor = 'yellow';
+  ctx.fillStyle = 'white';
+  ctx.shadowColor = 'grey';
   ctx.shadowBlur = 40;
   ctx.fill();
   ctx.globalAlpha = 1.0;
@@ -210,16 +210,30 @@ function drawGorillaRightArm(player) {
 }
 
 function drawGorillaFace() {
-  ctx.strokeStyle = 'lightgray';
-  ctx.lineWidth = 3 * state.scale;
+  // Face circle
+  ctx.save();
   ctx.beginPath();
-  ctx.moveTo(-5 * state.scale, -70 * state.scale);
-  ctx.lineTo(-2 * state.scale, -70 * state.scale);
-  ctx.moveTo(2 * state.scale, -70 * state.scale);
-  ctx.lineTo(5 * state.scale, -70 * state.scale);
-  ctx.moveTo(-5 * state.scale, -62 * state.scale);
-  ctx.lineTo(5 * state.scale, -62 * state.scale);
+  ctx.arc(0, -70 * state.scale, 15 * state.scale, 0, 2 * Math.PI);
+  ctx.fillStyle = 'black';
+  ctx.shadowColor = 'black';
+  ctx.shadowBlur = 3 * state.scale;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Eyes
+  ctx.beginPath();
+  ctx.arc(-5 * state.scale, -74 * state.scale, 2.5 * state.scale, 0, 2 * Math.PI);
+  ctx.arc(5 * state.scale, -74 * state.scale, 2.5 * state.scale, 0, 2 * Math.PI);
+  ctx.fillStyle = 'white';
+  ctx.fill();
+
+  // Smile
+  ctx.beginPath();
+  ctx.arc(0, -67 * state.scale, 6 * state.scale, 0, Math.PI, false);
+  ctx.lineWidth = 2 * state.scale;
+  ctx.strokeStyle = 'white';
   ctx.stroke();
+  ctx.restore();
 }
 
 function drawBomb() {
