@@ -365,65 +365,14 @@ function checkBuildingHit(skipPlayer) {
 function checkGorillaHit() {
   const enemy = 3 - state.currentPlayer;
   const { x: ox, y: oy } = getGorillaOrigin(enemy);
-  const cx = ox * state.scale + state.offsetX;
-  const cy = canvas.height - (oy * state.scale + state.offsetY);
-  const bx = state.bomb.x * state.scale + state.offsetX;
-  const by = canvas.height - (state.bomb.y * state.scale + state.offsetY);
-  const rx = bx - cx;
-  const ry = by - cy;
-
-  ctx.save();
-  ctx.translate(cx, cy);
-
-  // For debugging: collect all sample points
-  if (DEBUG) debugSamples = [];
-
-  drawGorillaBody();
-
-  let hit = false;
-  // body hit
-  for (let a = 0; a < 2 * Math.PI; a += Math.PI / 4) {
-    const px = rx + BOMB_RADIUS * state.scale * Math.cos(a);
-    const py = ry + BOMB_RADIUS * state.scale * Math.sin(a);
-    const inPath = ctx.isPointInPath(px, py);
-    if (DEBUG) debugSamples.push({ x: cx + px, y: cy + py, hit: inPath });
-    if (inPath) {
-      hit = true;
-      break;
-    }
+  // Compute distance in *game units* (not canvas coords!)
+  const dx = state.bomb.x - ox;
+  const dy = state.bomb.y - (oy + GORILLA_BODY_CENTER_Y);
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  if (dist <= GORILLA_BODY_RADIUS + BOMB_RADIUS) {
+    return true;
   }
-
-  // arms
-  if (!hit) {
-    drawGorillaLeftArm(enemy);
-    for (let a = 0; a < 2 * Math.PI; a += Math.PI / 4) {
-      const px = rx + BOMB_RADIUS * state.scale * Math.cos(a);
-      const py = ry + BOMB_RADIUS * state.scale * Math.sin(a);
-      const inStroke = ctx.isPointInStroke(px, py);
-      if (DEBUG) debugSamples.push({ x: cx + px, y: cy + py, hit: inStroke });
-      if (inStroke) {
-        hit = true;
-        break;
-      }
-    }
-  }
-
-  if (!hit) {
-    drawGorillaRightArm(enemy);
-    for (let a = 0; a < 2 * Math.PI; a += Math.PI / 4) {
-      const px = rx + BOMB_RADIUS * state.scale * Math.cos(a);
-      const py = ry + BOMB_RADIUS * state.scale * Math.sin(a);
-      const inStroke = ctx.isPointInStroke(px, py);
-      if (DEBUG) debugSamples.push({ x: cx + px, y: cy + py, hit: inStroke });
-      if (inStroke) {
-        hit = true;
-        break;
-      }
-    }
-  }
-
-  ctx.restore();
-  return hit;
+  return false;
 }
 
 
