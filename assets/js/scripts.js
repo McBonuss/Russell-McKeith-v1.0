@@ -1,9 +1,9 @@
 // --- Constants ---
 const LEFT_GORILLA_INDEX = 1;
-const RIGHT_GORILLA_INDEX = -2;
-const GORILLA_BODY_CENTER_Y = 55;
-const GORILLA_BODY_RADIUS = 28;
-const BOMB_RADIUS = 6;
+const RIGHT_GORILLA_INDEX = -3; // 6th building from the left is the right gorilla's building
+const GORILLA_BODY_CENTER_Y = 50; // Y offset for the gorilla's body center
+const GORILLA_BODY_RADIUS = 50; // Radius of the gorilla's body hitbox
+const BOMB_RADIUS = 10; // Radius of the bomb
 
 // --- State ---
 let state = {};
@@ -111,14 +111,14 @@ function drawGorilla(player) {
   drawGorillaLeftArm(player);
   drawGorillaRightArm(player);
   drawGorillaFace();
+ 
 
   // Debug: Draw hitbox
   ctx.beginPath();
   ctx.arc(0, GORILLA_BODY_CENTER_Y, GORILLA_BODY_RADIUS, 0, 2 * Math.PI);
-  ctx.strokeStyle = "red";
+  ctx.strokeStyle = "lime";
   ctx.lineWidth = 2;
   ctx.stroke();
-
   ctx.restore();
 }
 
@@ -181,7 +181,7 @@ function drawGorillaFace() {
 
 function drawBomb() {
   if (state.phase === "aiming") {
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
     ctx.setLineDash([3, 8]);
     ctx.lineWidth = 3;
     ctx.beginPath();
@@ -323,7 +323,7 @@ function throwBomb() {
 }
 
 function moveBomb(elapsedTime) {
-  const multiplier = elapsedTime / 200;
+  const multiplier = elapsedTime / 200; // Adjust multiplier for smoother animation
   state.bomb.velocity.y -= 20 * multiplier;
   state.bomb.x += state.bomb.velocity.x * multiplier;
   state.bomb.y += state.bomb.velocity.y * multiplier;
@@ -336,7 +336,7 @@ function animate(timestamp) {
     return;
   }
   const elapsedTime = timestamp - previousAnimationTimestamp;
-  const hitDetectionPrecision = 10;
+  const hitDetectionPrecision = 50; // Increase for more precision, decrease for performance
   for (let i = 0; i < hitDetectionPrecision; i++) {
     moveBomb(elapsedTime / hitDetectionPrecision);
     const miss = checkFrameHit() || checkBuildingHit();
@@ -392,7 +392,7 @@ function checkGorillaHit() {
   ctx.translate(gorillaOriginX, gorillaOriginY);
   drawGorillaBody();
 
-  let hit = false;
+  let hit = false; // Check if the bomb is within the gorilla's body hitbox
   for (let a = 0; a < 2 * Math.PI; a += Math.PI / 8) {
     const px = bombLocalX + BOMB_RADIUS * Math.cos(a);
     const py = bombLocalY + BOMB_RADIUS * Math.sin(a);
