@@ -124,7 +124,6 @@ canvas {
   border-radius: 50%;
   background-color: rgba(203, 198, 212, 0.194); /* Optional: Add a semi-transparent color for debugging */
   cursor: grab;
-  touch-action: none;
 }
 
 #congratulations {
