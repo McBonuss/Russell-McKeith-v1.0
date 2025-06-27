@@ -1,9 +1,7 @@
 // --- Constants ---
-const LEFT_GORILLA_INDEX = 1;
-const RIGHT_GORILLA_INDEX = -3; // 6th building from the left is the right gorilla's building
-const GORILLA_BODY_CENTER_Y = 50; // Y offset for the gorilla's body center (from feet)
-const GORILLA_BODY_RADIUS = 50;   // Radius of the gorilla's body hitbox
-const BOMB_RADIUS = 10;           // Radius of the bomb
+const GORILLA_BODY_CENTER_Y = 50;    // Y offset for the gorilla's body center (from feet)
+const GORILLA_BODY_RADIUS = 50;      // Radius of the gorilla's body hitbox
+const BOMB_RADIUS = 10;              // Radius of the bomb
 
 // --- State ---
 let state = {};
@@ -24,63 +22,48 @@ canvas.style.touchAction = "none";
 
 // --- Initialization ---
 newGameButtonDOM.addEventListener("click", newGame);
-window.addEventListener('resize', resizeCanvasToContainer);
-document.addEventListener('DOMContentLoaded', () => {
+window.addEventListener("resize", resizeCanvasToContainer);
+window.addEventListener("resize", checkOrientation);
+window.addEventListener("orientationchange", checkOrientation);
+document.addEventListener("DOMContentLoaded", () => {
   newGame();
   resizeCanvasToContainer();
   checkOrientation();
 });
-window.addEventListener('orientationchange', checkOrientation);
-window.addEventListener('resize', checkOrientation);
 
+// --- New Game ---
 function newGame() {
   state = {
     scale: 1,
     offsetX: 0,
     offsetY: 0,
-    phase: "aiming", // aiming | in flight | celebrating
+    phase: "aiming",       // aiming | in flight | celebrating
     currentPlayer: 1,
-    bomb: {
-      x: undefined,
-      y: undefined,
-      velocity: { x: 0, y: 0 },
-    },
+    bomb: { x: 0, y: 0, velocity: { x: 0, y: 0 } },
     buildings: generateBuildings(),
   };
   calculateScale();
   initializeBombPosition();
-  congratulationsDOM.style.visibility = "hidden";
-  angle1DOM.innerText = 0;
-  velocity1DOM.innerText = 0;
-  angle2DOM.innerText = 0;
-  velocity2DOM.innerText = 0;
+  hideCongrats();
+  resetInfoDisplays();
   draw();
 }
 
-// --- Utility Functions ---
+// --- Utility ---
 function getGorillaBuilding(player) {
-  return player === 1
-    ? state.buildings.at(LEFT_GORILLA_INDEX)
-    : state.buildings.at(RIGHT_GORILLA_INDEX);
+  // Player 1 on second building, Player 2 on sixth
+  const idx = player === 1 ? 1 : state.buildings.length - 3;
+  return state.buildings[idx];
 }
 
 function getGorillaOrigin(player) {
-  const building = getGorillaBuilding(player);
-  return {
-    x: building.x + building.width / 2,
-    y: building.y + building.height
-  };
+  const b = getGorillaBuilding(player);
+  return { x: b.x + b.width / 2, y: b.y + b.height };
 }
 
-function getBombLocalCoords(targetPlayer) {
-  const origin = getGorillaOrigin(targetPlayer);
-  return {
-    x: state.bomb.x - origin.x,
-    y: state.bomb.y - origin.y
-  };
-}
+// --- Drawing ---
 
-// --- Drawing Functions ---
+
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
@@ -91,19 +74,18 @@ function draw() {
 }
 
 function drawBackground() {
-  ctx.fillStyle = "#58A8D8";
+  ctx.fillStyle = '#58A8D8';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function drawBuildings() {
-  state.buildings.forEach((building) => {
-    ctx.fillStyle = "#152A47";
-    // Draw from bottom up (canvas Y=0 is top, so subtract from canvas.height)
+  state.buildings.forEach(b => {
+    ctx.fillStyle = '#152A47';
     ctx.fillRect(
-      building.x * state.scale + state.offsetX,
-      canvas.height - (building.height * state.scale + state.offsetY),
-      building.width * state.scale,
-      building.height * state.scale
+      b.x * state.scale + state.offsetX,
+      canvas.height - (b.height * state.scale + state.offsetY),
+      b.width * state.scale,
+      b.height * state.scale
     );
   });
 }
@@ -111,7 +93,6 @@ function drawBuildings() {
 function drawGorilla(player) {
   ctx.save();
   const { x, y } = getGorillaOrigin(player);
-  // Convert to canvas coordinates
   const cx = x * state.scale + state.offsetX;
   const cy = canvas.height - (y * state.scale + state.offsetY);
   ctx.translate(cx, cy);
@@ -119,20 +100,12 @@ function drawGorilla(player) {
   drawGorillaLeftArm(player);
   drawGorillaRightArm(player);
   drawGorillaFace();
-
-  // Debug: Draw hitbox
-  ctx.beginPath();
-  ctx.arc(0, -GORILLA_BODY_CENTER_Y * state.scale, GORILLA_BODY_RADIUS * state.scale, 0, 2 * Math.PI);
-  ctx.strokeStyle = "lime";
-  ctx.lineWidth = 2;
-  ctx.stroke();
   ctx.restore();
 }
 
 function drawGorillaBody() {
-  ctx.fillStyle = "black";
+  ctx.fillStyle = 'black';
   ctx.beginPath();
-  // Adjusted polygon to better fit the visible gorilla
   ctx.moveTo(0, -20 * state.scale);
   ctx.lineTo(-12 * state.scale, 0);
   ctx.lineTo(-22 * state.scale, 10 * state.scale);
@@ -146,56 +119,60 @@ function drawGorillaBody() {
 }
 
 function drawGorillaLeftArm(player) {
-  ctx.strokeStyle = "black";
+  // Only Player 1’s left arm goes up when aiming (or during celebration)
+  const raising = player === 1 &&
+    ((state.phase === 'aiming' && state.currentPlayer === 1) || state.phase === 'celebrating');
+  ctx.strokeStyle = 'black';
   ctx.lineWidth = 18 * state.scale;
   ctx.beginPath();
   ctx.moveTo(-13 * state.scale, -50 * state.scale);
-  if (
-    (state.phase === "aiming" && state.currentPlayer === 1 && player === 1) ||
-    (state.phase === "celebrating" && state.currentPlayer === player)
-  ) {
-    ctx.quadraticCurveTo(-44 * state.scale, -63 * state.scale, -28 * state.scale, -107 * state.scale);
-  } else {
-    ctx.quadraticCurveTo(-44 * state.scale, -45 * state.scale, -28 * state.scale, -12 * state.scale);
-  }
+  ctx.quadraticCurveTo(
+    -44 * state.scale,
+    -(raising ? 63 : 45) * state.scale,
+    -28 * state.scale,
+    -(raising ? 107 : 12) * state.scale
+  );
   ctx.stroke();
 }
 
 function drawGorillaRightArm(player) {
-  ctx.strokeStyle = "black";
+  // Only Player 2’s right arm goes up when aiming (or during celebration)
+  const raising = player === 2 &&
+    ((state.phase === 'aiming' && state.currentPlayer === 2) || state.phase === 'celebrating');
+  ctx.strokeStyle = 'black';
   ctx.lineWidth = 18 * state.scale;
   ctx.beginPath();
   ctx.moveTo(13 * state.scale, -50 * state.scale);
-  if (
-    (state.phase === "aiming" && state.currentPlayer === 2 && player === 2) ||
-    (state.phase === "celebrating" && state.currentPlayer === player)
-  ) {
-    ctx.quadraticCurveTo(44 * state.scale, -63 * state.scale, 28 * state.scale, -107 * state.scale);
-  } else {
-    ctx.quadraticCurveTo(44 * state.scale, -45 * state.scale, 28 * state.scale, -12 * state.scale);
-  }
+  ctx.quadraticCurveTo(
+    44 * state.scale,
+    -(raising ? 63 : 45) * state.scale,
+    28 * state.scale,
+    -(raising ? 107 : 12) * state.scale
+  );
   ctx.stroke();
 }
 
 function drawGorillaFace() {
-  ctx.strokeStyle = "lightgray";
+  ctx.strokeStyle = 'lightgray';
   ctx.lineWidth = 3 * state.scale;
   ctx.beginPath();
-  ctx.moveTo(-5 * state.scale, -70 * state.scale); ctx.lineTo(-2 * state.scale, -70 * state.scale); // Left Eye
-  ctx.moveTo(2 * state.scale, -70 * state.scale); ctx.lineTo(5 * state.scale, -70 * state.scale);   // Right Eye
-  ctx.moveTo(-5 * state.scale, -62 * state.scale); ctx.lineTo(5 * state.scale, -62 * state.scale);  // Mouth
+  ctx.moveTo(-5 * state.scale, -70 * state.scale);
+  ctx.lineTo(-2 * state.scale, -70 * state.scale);
+  ctx.moveTo(2 * state.scale, -70 * state.scale);
+  ctx.lineTo(5 * state.scale, -70 * state.scale);
+  ctx.moveTo(-5 * state.scale, -62 * state.scale);
+  ctx.lineTo(5 * state.scale, -62 * state.scale);
   ctx.stroke();
 }
 
 function drawBomb() {
   ctx.save();
-  // Convert bomb to canvas coordinates
   const bx = state.bomb.x * state.scale + state.offsetX;
   const by = canvas.height - (state.bomb.y * state.scale + state.offsetY);
 
-  if (state.phase === "aiming") {
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
-    ctx.setLineDash([3, 8]);
+  if (state.phase === 'aiming') {
+    ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+    ctx.setLineDash([3,8]);
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(bx, by);
@@ -206,199 +183,163 @@ function drawBomb() {
     ctx.stroke();
     ctx.setLineDash([]);
   }
-  ctx.fillStyle = "white";
+
+  ctx.fillStyle = 'white';
   ctx.beginPath();
   ctx.arc(bx, by, BOMB_RADIUS * state.scale, 0, 2 * Math.PI);
-  ctx.fill();
-
-  // Debug: bomb center
-  ctx.beginPath();
-  ctx.arc(bx, by, 2, 0, 2 * Math.PI);
-  ctx.fillStyle = "lime";
   ctx.fill();
   ctx.restore();
 }
 
-// --- Game Logic ---
+// --- Layout & Scaling ---
 function calculateScale() {
-  const lastBuilding = state.buildings.at(-1);
-  const totalWidthOfTheCity = lastBuilding.x + lastBuilding.width;
-  const maxBuildingHeight = Math.max(...state.buildings.map((b) => b.height));
-  state.scale = Math.min(
-    canvas.width / totalWidthOfTheCity,
-    canvas.height / (maxBuildingHeight + 200)
-  );
-  state.offsetX = (canvas.width - totalWidthOfTheCity * state.scale) / 2;
-  state.offsetY = 0; // No vertical offset needed, since we draw from bottom up
+  const last = state.buildings[state.buildings.length - 1];
+  const totalW = last.x + last.width;
+  const maxH   = Math.max(...state.buildings.map(b => b.height));
+  state.scale   = Math.min(canvas.width / totalW, canvas.height / (maxH + 200));
+  state.offsetX = (canvas.width - totalW * state.scale) / 2;
+  state.offsetY = 0;
 }
 
 function generateBuildings() {
-  const buildings = [];
-  for (let index = 0; index < 9; index++) {
-    const previousBuilding = buildings[index - 1];
-    const x = previousBuilding
-      ? previousBuilding.x + previousBuilding.width + 4
-      : 0;
-    const minWidth = 80, maxWidth = 120;
-    const width = minWidth + Math.random() * (maxWidth - minWidth);
-    const platformWithGorilla = index === 1 || index === 6;
-    const minHeight = 40, maxHeight = 300;
-    const minHeightGorilla = 30, maxHeightGorilla = 150;
-    const height = platformWithGorilla
-      ? minHeightGorilla + Math.random() * (maxHeightGorilla - minHeightGorilla)
-      : minHeight + Math.random() * (maxHeight - minHeight);
-    const y = 0;
-    buildings.push({ x, y, width, height });
+  const arr = [];
+  for (let i = 0; i < 9; i++) {
+    const prev = arr[i - 1];
+    const x    = prev ? prev.x + prev.width + 4 : 0;
+    const w    = 80 + Math.random() * 40;
+    const plat = (i === 1 || i === 6);
+    const h    = plat ? 30 + Math.random() * 120 : 40 + Math.random() * 260;
+    arr.push({ x, y: 0, width: w, height: h });
   }
-  return buildings;
+  return arr;
 }
 
+// --- Bomb & Grab Area Setup ---
 function initializeBombPosition() {
-  const building = getGorillaBuilding(state.currentPlayer);
-  const gorillaX = building.x + building.width / 2;
-  const gorillaY = building.y + building.height;
-  const gorillaHandOffsetX = state.currentPlayer === 1 ? -28 : 28;
-  const gorillaHandOffsetY = 107;
-  state.bomb.x = gorillaX + gorillaHandOffsetX;
-  state.bomb.y = gorillaY + gorillaHandOffsetY;
-  state.bomb.velocity.x = 0;
-  state.bomb.velocity.y = 0;
+  const b = getGorillaBuilding(state.currentPlayer);
+  const offset = state.currentPlayer === 1 ? -28 : 28;
+  state.bomb.x = b.x + b.width / 2 + offset;
+  state.bomb.y = b.y + b.height + 107;
+  state.bomb.velocity = { x: 0, y: 0 };
   updateBombGrabArea();
 }
 
 function updateBombGrabArea() {
-  const grabAreaRadius = 80 * state.scale;
-  const building = getGorillaBuilding(state.currentPlayer);
-  const gorillaBodyCenterX = building.x + building.width / 2;
-  const gorillaBodyCenterY = building.y + building.height + GORILLA_BODY_CENTER_Y;
-  const centerCanvasX = gorillaBodyCenterX * state.scale + (state.offsetX || 0);
-  const centerCanvasY = canvas.height - (gorillaBodyCenterY * state.scale + (state.offsetY || 0));
-  const left = centerCanvasX - grabAreaRadius;
-  const top = centerCanvasY - grabAreaRadius;
-  bombGrabAreaDOM.style.left = `${left}px`;
-  bombGrabAreaDOM.style.top = `${top}px`;
-  bombGrabAreaDOM.style.width = `${grabAreaRadius * 2}px`;
-  bombGrabAreaDOM.style.height = `${grabAreaRadius * 2}px`;
+  const r = 80 * state.scale;
+  const b = getGorillaBuilding(state.currentPlayer);
+  const cx = (b.x + b.width / 2) * state.scale + state.offsetX;
+  const cy = canvas.height - ((b.y + b.height + GORILLA_BODY_CENTER_Y) * state.scale + state.offsetY);
+  bombGrabAreaDOM.style.left   = `${cx - r}px`;
+  bombGrabAreaDOM.style.top    = `${cy - r}px`;
+  bombGrabAreaDOM.style.width  = `${r * 2}px`;
+  bombGrabAreaDOM.style.height = `${r * 2}px`;
 }
 
-// --- Event Handlers ---
-let isDragging = false;
-let dragStartX, dragStartY;
+// --- Input Handling ---
+let isDragging = false, startX, startY;
 
-bombGrabAreaDOM.addEventListener("mousedown", function (e) {
-  if (state.phase === "aiming") {
+bombGrabAreaDOM.addEventListener('mousedown', e => {
+  if (state.phase === 'aiming') {
     isDragging = true;
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    document.body.style.cursor = "grabbing";
+    startX = e.clientX;
+    startY = e.clientY;
+    document.body.style.cursor = 'grabbing';
   }
 });
 
-window.addEventListener("mousemove", function (e) {
-  if (isDragging) {
-    let deltaX = (e.clientX - dragStartX) / state.scale;
-    let deltaY = (dragStartY - e.clientY) / state.scale;
-    state.bomb.velocity.x = -deltaX;
-    state.bomb.velocity.y = -deltaY;
-    setInfo(deltaX, deltaY);
-    updateBombGrabArea();
-    draw();
-  }
+window.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  const dx = (e.clientX - startX) / state.scale;
+  const dy = (startY - e.clientY) / state.scale;
+  state.bomb.velocity.x = -dx;
+  state.bomb.velocity.y = -dy;
+  updateInfo(dx, dy);
+  updateBombGrabArea();
+  draw();
 });
 
-window.addEventListener("mouseup", function () {
-  if (isDragging) {
-    isDragging = false;
-    document.body.style.cursor = "default";
-    throwBomb();
-  }
+window.addEventListener('mouseup', () => {
+  if (!isDragging) return;
+  isDragging = false;
+  document.body.style.cursor = 'default';
+  throwBomb();
 });
 
-function setInfo(deltaX, deltaY) {
-  const hypotenuse = Math.sqrt(deltaX ** 2 + deltaY ** 2);
-  const angleInRadians = Math.atan2(-deltaY, deltaX);
-  const angleInDegrees = (angleInRadians / Math.PI) * 180;
+function updateInfo(dx, dy) {
+  const speed = Math.hypot(dx, dy);
+  const angle = Math.atan2(-dy, dx) * 180 / Math.PI;
   if (state.currentPlayer === 1) {
-    angle1DOM.innerText = Math.round(angleInDegrees);
-    velocity1DOM.innerText = Math.round(hypotenuse);
+    angle1DOM.innerText    = Math.round(angle);
+    velocity1DOM.innerText = Math.round(speed);
   } else {
-    angle2DOM.innerText = Math.round(angleInDegrees);
-    velocity2DOM.innerText = Math.round(hypotenuse);
+    angle2DOM.innerText    = Math.round(angle);
+    velocity2DOM.innerText = Math.round(speed);
   }
 }
 
-// --- Bomb Flight ---
-let previousAnimationTimestamp = undefined;
+function resetInfoDisplays() {
+  angle1DOM.innerText = 0;
+  velocity1DOM.innerText = 0;
+  angle2DOM.innerText = 0;
+  velocity2DOM.innerText = 0;
+}
+
+function hideCongrats() {
+  congratulationsDOM.style.visibility = 'hidden';
+}
+
+// --- Simulation & Collision ---
+let lastTs = null;
 
 function throwBomb() {
-  state.phase = "in flight";
-  previousAnimationTimestamp = undefined;
+  state.phase = 'in flight';
+  lastTs = null;
   requestAnimationFrame(animate);
 }
 
-function moveBomb(elapsedTime) {
-  const multiplier = elapsedTime / 200;
-  state.bomb.velocity.y -= 20 * multiplier;
-  state.bomb.x += state.bomb.velocity.x * multiplier;
-  state.bomb.y += state.bomb.velocity.y * multiplier;
+function moveBomb(dt) {
+  const m = dt / 200;
+  state.bomb.velocity.y -= 20 * m;
+  state.bomb.x += state.bomb.velocity.x * m;
+  state.bomb.y += state.bomb.velocity.y * m;
 }
 
-function animate(timestamp) {
-  if (!previousAnimationTimestamp) {
-    previousAnimationTimestamp = timestamp;
+function animate(ts) {
+  if (lastTs === null) {
+    lastTs = ts;
     requestAnimationFrame(animate);
     return;
   }
-  const elapsedTime = timestamp - previousAnimationTimestamp;
-  const hitDetectionPrecision = 50;
-  for (let i = 0; i < hitDetectionPrecision; i++) {
-    moveBomb(elapsedTime / hitDetectionPrecision);
 
-    // 1) check for frame-out first
-    if (checkFrameHit()) {
-      state.currentPlayer = 3 - state.currentPlayer; // swap 1⇄2
-      state.phase = "aiming";
-      initializeBombPosition();
-      draw();
-      return;
-    }
+  const dt = ts - lastTs;
+  const steps = 50;
+  const enemy = 3 - state.currentPlayer;
 
-    // 2) check whether we actually hit the enemy gorilla
-    if (checkGorillaHit()) {
-      state.phase = "celebrating";
-      announceWinner();
-      draw();
-      return;
-    }
+  for (let i = 0; i < steps; i++) {
+    moveBomb(dt / steps);
 
-    // 3) only now check for building hits (skipping the enemy’s building)
-    if (checkBuildingHit(3 - state.currentPlayer)) {
-      state.currentPlayer = 3 - state.currentPlayer;
-      state.phase = "aiming";
-      initializeBombPosition();
-      draw();
-      return;
-    }
+    if (checkFrameHit())   return handleMiss();
+    if (checkGorillaHit()) return handleHit();
+    if (checkBuildingHit(enemy)) return handleMiss();
   }
+
   updateBombGrabArea();
   draw();
-  previousAnimationTimestamp = timestamp;
+  lastTs = ts;
   requestAnimationFrame(animate);
 }
 
-function checkBuildingHit(skipPlayer = null) {
-  return state.buildings.some((building, idx) => {
-    // skip the building under the given player
-    if (skipPlayer === 1 && idx === LEFT_GORILLA_INDEX)  return false;
-    if (skipPlayer === 2 && idx === RIGHT_GORILLA_INDEX) return false;
+function handleMiss() {
+  state.currentPlayer = 3 - state.currentPlayer;
+  state.phase = 'aiming';
+  initializeBombPosition();
+  draw();
+}
 
-    return (
-      state.bomb.x >= building.x &&
-      state.bomb.x <= building.x + building.width &&
-      state.bomb.y >= building.y &&
-      state.bomb.y <= building.y + building.height
-    );
-  });
+function handleHit() {
+  state.phase = 'celebrating';
+  announceWinner();
+  draw();
 }
 
 function checkFrameHit() {
@@ -409,70 +350,69 @@ function checkFrameHit() {
   );
 }
 
+function checkBuildingHit(skipPlayer) {
+  const skipB = getGorillaBuilding(skipPlayer);
+  return state.buildings.some(b =>
+    b !== skipB &&
+    state.bomb.x >= b.x && state.bomb.x <= b.x + b.width &&
+    state.bomb.y >= b.y && state.bomb.y <= b.y + b.height
+  );
+}
+
 function checkGorillaHit() {
-  const enemyPlayer = state.currentPlayer === 1 ? 2 : 1;
-  const { x: gorillaOriginX, y: gorillaOriginY } = getGorillaOrigin(enemyPlayer);
-  // Convert to canvas coordinates
-  const cx = gorillaOriginX * state.scale + state.offsetX;
-  const cy = canvas.height - (gorillaOriginY * state.scale + state.offsetY);
-  // Bomb in canvas coordinates
+  const enemy = 3 - state.currentPlayer;
+  const { x: ox, y: oy } = getGorillaOrigin(enemy);
+  const cx = ox * state.scale + state.offsetX;
+  const cy = canvas.height - (oy * state.scale + state.offsetY);
   const bx = state.bomb.x * state.scale + state.offsetX;
   const by = canvas.height - (state.bomb.y * state.scale + state.offsetY);
-  // Local to gorilla
-  const bombLocalX = bx - cx;
-  const bombLocalY = by - cy;
+  const rx = bx - cx;
+  const ry = by - cy;
 
   ctx.save();
   ctx.translate(cx, cy);
-
-  // Draw body path for hit detection
   drawGorillaBody();
 
-  // Check the bomb's center and 8 points around its edge for body
-  let hit = false;
+  // body hit
   for (let a = 0; a < 2 * Math.PI; a += Math.PI / 4) {
-    const px = bombLocalX + BOMB_RADIUS * state.scale * Math.cos(a);
-    const py = bombLocalY + BOMB_RADIUS * state.scale * Math.sin(a);
+    const px = rx + BOMB_RADIUS * state.scale * Math.cos(a);
+    const py = ry + BOMB_RADIUS * state.scale * Math.sin(a);
     if (ctx.isPointInPath(px, py)) {
-      hit = true;
-      break;
+      ctx.restore();
+      return true;
     }
   }
 
-  // Check left arm (stroke)
-  if (!hit) {
-    drawGorillaLeftArm(enemyPlayer);
-    for (let a = 0; a < 2 * Math.PI; a += Math.PI / 4) {
-      const px = bombLocalX + BOMB_RADIUS * state.scale * Math.cos(a);
-      const py = bombLocalY + BOMB_RADIUS * state.scale * Math.sin(a);
-      if (ctx.isPointInStroke(px, py)) {
-        hit = true;
-        break;
-      }
+  // arm hits
+  drawGorillaLeftArm(enemy);
+  for (let a = 0; a < 2 * Math.PI; a += Math.PI / 4) {
+    const px = rx + BOMB_RADIUS * state.scale * Math.cos(a);
+    const py = ry + BOMB_RADIUS * state.scale * Math.sin(a);
+    if (ctx.isPointInStroke(px, py)) {
+      ctx.restore();
+      return true;
     }
   }
 
-  // Check right arm (stroke)
-  if (!hit) {
-    drawGorillaRightArm(enemyPlayer);
-    for (let a = 0; a < 2 * Math.PI; a += Math.PI / 4) {
-      const px = bombLocalX + BOMB_RADIUS * state.scale * Math.cos(a);
-      const py = bombLocalY + BOMB_RADIUS * state.scale * Math.sin(a);
-      if (ctx.isPointInStroke(px, py)) {
-        hit = true;
-        break;
-      }
+  drawGorillaRightArm(enemy);
+  for (let a = 0; a < 2 * Math.PI; a += Math.PI / 4) {
+    const px = rx + BOMB_RADIUS * state.scale * Math.cos(a);
+    const py = ry + BOMB_RADIUS * state.scale * Math.sin(a);
+    if (ctx.isPointInStroke(px, py)) {
+      ctx.restore();
+      return true;
     }
   }
 
   ctx.restore();
-  return hit;
+  return false;
 }
 
+// --- UI Helpers ---
 function announceWinner() {
   winnerDOM.innerText = `Player ${state.currentPlayer}`;
-  congratulationsDOM.style.visibility = "visible";
-  congratulationsDOM.setAttribute('tabindex', '-1');
+  congratulationsDOM.style.visibility = 'visible';
+  congratulationsDOM.setAttribute('tabindex','-1');
   congratulationsDOM.focus();
 }
 
@@ -480,7 +420,7 @@ function resizeCanvasToContainer() {
   const container = document.querySelector('.game-container');
   if (!container) return;
   const rect = container.getBoundingClientRect();
-  canvas.width = rect.width;
+  canvas.width  = rect.width;
   canvas.height = rect.height;
   calculateScale();
   initializeBombPosition();
@@ -488,19 +428,9 @@ function resizeCanvasToContainer() {
   updateBombGrabArea();
 }
 
-function checkOrientation() {
-  const rotateMsg = document.getElementById('rotate-message');
-  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if (isMobile && window.innerWidth < window.innerHeight) {
-    rotateMsg.style.display = 'flex';
-  } else {
-    rotateMsg.style.display = 'none';
-  }
-}
 
-// --- Keyboard Controls (optional, for accessibility) ---
-document.addEventListener('keydown', function (e) {
-  if (state.phase === "aiming") {
-    // Implement keyboard aiming/throwing if desired
-  }
-});
+function checkOrientation() {
+  const msg = document.getElementById('rotate-message');
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  msg.style.display = (isMobile && window.innerWidth < window.innerHeight) ? 'flex' : 'none';
+}
