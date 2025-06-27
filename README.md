@@ -60,13 +60,11 @@ This project is written with maintainability and extensibility in mind, using mo
 
 > [Play the game on GitHub Pages](https://github.com/McBonuss/p2Java-script-game)
 
-
-
 ---
 
 ## Screenshots
 
-
+![Gorrilas](assets\ReadMEImages\GorillasResponsive.jpg)
 
 ---
 
