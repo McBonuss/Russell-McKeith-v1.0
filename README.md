@@ -354,23 +354,6 @@ The most complex function has a cyclomatic complexity value of 11 while the medi
 
 ---
 
-### Known Issues
-
-- Minor offset of grab area on some high-DPI screens.
-- Resizing during bomb flight may cause trajectory jumps.
-- Accessibility for non-visual users is limited.
-- Mobile touch input can be finicky on some browsers.
-
----
-
-### Suggestions for Further Testing
-
-- Add automated tests (e.g., Playwright or Cypress) for UI and gameplay.
-- Test with screen readers for improved accessibility.
-- Test on additional mobile devices and browsers.
-
----
-
 ## Browser Compatibility
 
 Tested in:
@@ -464,9 +447,9 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) if available.
 - [Google Fonts](https://fonts.google.com/) for "Press Start 2P"
 - Special thanks to open-source contributors and testers.
 - My girlfriend and my friends for putting up with me whilst writing this.
-- Marcel my tutor.
+- Marcel my mentor.
 - [Gorillas Game in JavaScript (freeCodeCamp)](https://www.freecodecamp.org/news/gorillas-game-in-javascript/) for the inspiration on this classic
-- Tom
+- Tom my tutor for his support and guidance.
 
 ---
 
