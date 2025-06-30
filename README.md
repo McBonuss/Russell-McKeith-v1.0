@@ -354,7 +354,7 @@ The most complex function has a cyclomatic complexity value of 11 while the medi
 
 ---
 
-## Browser Compatibility
+## Browser Compatibility Tests
 
 Tested in:
 
@@ -368,7 +368,7 @@ Tested in:
 
 ---
 
-## Accessibility
+## Accessibility Options
 
 - The game is primarily visual and interactive, with minimal support for screen readers.
 - Info panels and expandable cards are marked up for accessibility.
