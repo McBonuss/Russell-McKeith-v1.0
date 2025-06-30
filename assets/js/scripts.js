@@ -73,6 +73,7 @@ function draw() {
   drawGorilla(1);
   drawGorilla(2);
   drawBomb();
+  drawTrajectoryDots();
 }
 
 function drawBackground() {
@@ -306,6 +307,30 @@ function drawBomb() {
   ctx.fill();
   ctx.restore();
 
+  ctx.restore();
+}
+
+function drawTrajectoryDots() {
+  if (state.phase !== 'aiming') return;
+  const steps = 40;
+  const dt = 0.08;
+  let { x, y } = state.bomb;
+  let vx = state.bomb.velocity.x;
+  let vy = state.bomb.velocity.y;
+  ctx.save();
+  ctx.globalAlpha = 0.5;
+  for (let i = 0; i < steps; i++) {
+    vx = vx;
+    vy = vy - 20 * dt;
+    x = x + vx * dt;
+    y = y + vy * dt;
+    const px = x * state.scale + state.offsetX;
+    const py = canvas.height - (y * state.scale + state.offsetY);
+    ctx.beginPath();
+    ctx.arc(px, py, 4, 0, 2 * Math.PI);
+    ctx.fillStyle = "#ffe600";
+    ctx.fill();
+  }
   ctx.restore();
 }
 

@@ -102,9 +102,7 @@ Wireframes were sketched to ensure a clear layout for the game area, info panels
 
 ## Screenshots
 
-<p align="center">
-  <img src="assets/ReadMEImages/GorillasResponsive.jpg" width="600" alt="Gameplay Screenshot">
-</p>
+![Gameplay Screenshot](assets/ReadMEImages/GorillasResponsive.jpg)
 
 _**Add more screenshots or animated GIFs in the future for enhanced presentation!**_
 
@@ -115,7 +113,7 @@ _**Add more screenshots or animated GIFs in the future for enhanced presentation
 ### Prerequisites
 
 - A modern web browser (Chrome, Firefox, Edge, Safari)
-- *(Optional)* VSCode Live Server extension for local dev
+- _(Optional)_ VSCode Live Server extension for local dev
 
 ### Installation
 
@@ -146,7 +144,7 @@ Push to the main branch.
 Enable GitHub Pages in your repository settings (root).
 
 Your game will be live at:  
-https://mcbonuss.github.io/p2Java-script-game/
+<https://mcbonuss.github.io/p2Java-script-game/>
 
 ---
 
@@ -259,15 +257,15 @@ All main code is in `/assets/js/scripts.js` and is thoroughly commented for ease
 ### Testing User Stories
 
 - As a player, I want to play Gorillas in my browser, on any device.
-    - Tested on Chrome, Firefox, Edge, and Safari on both desktop and mobile devices. The game loads and is playable on all.
+  - Tested on Chrome, Firefox, Edge, and Safari on both desktop and mobile devices. The game loads and is playable on all.
 - As a player, I want clear, simple controls for aiming and throwing.
-    - Mouse and touch drag tested for aiming and throwing; both work as expected.
+  - Mouse and touch drag tested for aiming and throwing; both work as expected.
 - As a player, I want to see who is winning and get feedback when a round ends.
-    - The winner overlay appears after a successful hit; info panels update correctly.
+  - The winner overlay appears after a successful hit; info panels update correctly.
 - As a player, I want to read about the history of Gorillas and how to play.
-    - Expandable cards for "History" and "How to Play" are accessible and readable.
+  - Expandable cards for "History" and "How to Play" are accessible and readable.
 - As a developer, I want to easily understand, test, and extend the codebase.
-    - Code is modular, commented, and structured for clarity.
+  - Code is modular, commented, and structured for clarity.
 
 ### Code Validation
 
@@ -291,6 +289,15 @@ All main code is in `/assets/js/scripts.js` and is thoroughly commented for ease
 - **Chrome DevTools:** Used for layout, responsiveness, and performance testing.
 - **Responsive Design Checker:** Confirmed layout adapts to various screen sizes and orientations.
 - **Am I Responsive?:** Used to preview the site on multiple device frames.
+- **jshint:** Used to test Jscript. Configure
+Metrics
+There are 42 functions in this file.
+
+Function with the largest signature take 2 arguments, while the median is 0.
+
+Largest function has 37 statements in it, while the median is 5.5.
+
+The most complex function has a cyclomatic complexity value of 11 while the median is 1.5.
 
 ### Manual Testing
 
@@ -329,6 +336,7 @@ All main code is in `/assets/js/scripts.js` and is thoroughly commented for ease
 ---
 
 **Comments:**  
+
 - The grab area is much easier to use after increasing its size and adding touch-action CSS.
 - The game is best played in landscape mode on mobile devices.
 - All expandable cards are visually and functionally consistent.
@@ -458,8 +466,7 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) if available.
 - My girlfriend and my friends for putting up with me whilst writing this.
 - Marcel my tutor.
 - [Gorillas Game in JavaScript (freeCodeCamp)](https://www.freecodecamp.org/news/gorillas-game-in-javascript/) for the inspiration on this classic
-- Tom 
-
+- Tom
 
 ---
 
