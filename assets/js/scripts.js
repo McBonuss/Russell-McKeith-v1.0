@@ -312,7 +312,7 @@ function drawBomb() {
 
 function drawTrajectoryDots() {
   if (state.phase !== 'aiming') return;
-  const steps = 40;
+  const steps = 5;
   const dt = 0.08;
   let { x, y } = state.bomb;
   let vx = state.bomb.velocity.x;
@@ -328,7 +328,7 @@ function drawTrajectoryDots() {
     const py = canvas.height - (y * state.scale + state.offsetY);
     ctx.beginPath();
     ctx.arc(px, py, 4, 0, 2 * Math.PI);
-    ctx.fillStyle = "#ffe600";
+    ctx.fillStyle = "white";
     ctx.fill();
   }
   ctx.restore();
