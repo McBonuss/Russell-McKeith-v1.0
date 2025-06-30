@@ -5,77 +5,92 @@
 [![Issues](https://img.shields.io/github/issues/McBonuss/p2Java-script-game.svg)](https://github.com/McBonuss/p2Java-script-game/issues)
 [![Last Commit](https://img.shields.io/github/last-commit/McBonuss/p2Java-script-game.svg)](https://github.com/McBonuss/p2Java-script-game/commits/main)
 
-A modern, browser-based remake of the classic QBasic "Gorillas" artillery game!  
+A modern, browser-based remake of the classic QBasic "Gorillas" artillery game.  
 Challenge a friend on a beautiful night skyline—now with animated gorillas, dynamic cityscapes, and a polished, mobile-friendly UI.
 
 ---
 
 ## Table of Contents
 
-1. [Overview](#overview)
-2. [Badges](#badges)
-3. [Features](#features)
-4. [Demo](#demo)
-5. [Screenshots](#screenshots)
-6. [Getting Started](#getting-started)
+1. [User Experience (UX)](#user-experience-ux)
+    1. [Project Goals](#project-goals)
+    2. [User Stories](#user-stories)
+    3. [Color Scheme](#color-scheme)
+    4. [Typography](#typography)
+    5. [Wireframes](#wireframes)
+2. [Features](#features)
+3. [Demo](#demo)
+4. [Screenshots](#screenshots)
+5. [Getting Started](#getting-started)
     - [Prerequisites](#prerequisites)
     - [Installation](#installation)
     - [Running Locally](#running-locally)
     - [Deployment](#deployment)
-7. [Game Architecture](#game-architecture)
-8. [File Structure](#file-structure)
-9. [Main Components](#main-components)
-10. [Gameplay](#gameplay)
-11. [Extensibility & Customisation](#extensibility--customisation)
-12. [Recent Changes & Updates](#recent-changes--updates)
-13. [Technologies Used](#technologies-used)
-14. [Testing](#testing)
-15. [Browser Compatibility](#browser-compatibility)
-16. [Accessibility](#accessibility)
-17. [Known Issues](#known-issues)
-18. [Troubleshooting & FAQ](#troubleshooting--faq)
-19. [Future Features](#future-features)
-20. [Contributing](#contributing)
-21. [Changelog](#changelog)
-22. [Credits & Acknowledgements](#credits--acknowledgements)
-23. [Support](#support)
-24. [Contact](#contact)
-25. [License](#license)
+6. [Game Architecture](#game-architecture)
+7. [File Structure](#file-structure)
+8. [Main Components](#main-components)
+9. [Gameplay](#gameplay)
+10. [Extensibility & Customisation](#extensibility--customisation)
+11. [Recent Changes & Updates](#recent-changes--updates)
+12. [Technologies Used](#technologies-used)
+13. [Testing](#testing)
+14. [Browser Compatibility](#browser-compatibility)
+15. [Accessibility](#accessibility)
+16. [Known Issues](#known-issues)
+17. [Troubleshooting & FAQ](#troubleshooting--faq)
+18. [Future Features](#future-features)
+19. [Contributing](#contributing)
+20. [Changelog](#changelog)
+21. [Credits & Acknowledgements](#credits--acknowledgements)
+22. [Support](#support)
+23. [License](#license)
 
 ---
 
-## Overview
+## User Experience (UX)
 
-**Gorilla Game** is a modern, open-source tribute to the legendary QBasic Gorillas.  
-Use intuitive drag controls to set the angle and velocity, then watch your banana arc over procedurally generated buildings.  
-It’s a two-player, turn-based battle—first to hit wins!
+### Project Goals
 
-> Built in vanilla JavaScript, with accessibility, mobile support, and extensibility in mind.
+- Deliver a fun, nostalgic, and visually appealing remake of the classic QBasic Gorillas game.
+- Provide a responsive, accessible, and intuitive experience for both desktop and mobile users.
+- Make the codebase easy to understand, extend, and maintain for future developers.
 
----
+### User Stories
 
-## Badges
+- As a player, I want to play Gorillas in my browser, on any device.
+- As a player, I want clear, simple controls for aiming and throwing.
+- As a player, I want to see who is winning and get feedback when a round ends.
+- As a player, I want to read about the history of Gorillas and how to play.
+- As a developer, I want to easily understand, test, and extend the codebase.
 
-| Build Status | License | Demo | Issues | Last Commit |
-|:---:|:---:|:---:|:---:|:---:|
-| ![status](https://img.shields.io/badge/build-passing-brightgreen) | ![MIT](https://img.shields.io/badge/license-MIT-green) | [Play Now](https://mcbonuss.github.io/p2Java-script-game/) | ![Issues](https://img.shields.io/github/issues/McBonuss/p2Java-script-game.svg) | ![Last Commit](https://img.shields.io/github/last-commit/McBonuss/p2Java-script-game.svg) |
+### Color Scheme
+
+The game uses a night-sky palette: deep blues and purples for the background, yellow for highlights and headings, and subtle gradients for depth. Building windows and the moon add pops of color.
+
+### Typography
+
+- **Headings & UI:** [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) (Google Fonts) for a retro, pixel-art feel.
+- **Body:** Same font for consistency and theme.
+
+### Wireframes
+
+Wireframes were sketched to ensure a clear layout for the game area, info panels, and expandable cards. The design prioritizes clarity, accessibility, and mobile responsiveness.
 
 ---
 
 ## Features
 
-- **Responsive**: Desktop & mobile-optimised; fluid canvas scaling
-- **Procedural Cities**: New city skyline every game
-- **Animated Gorillas**: Improved proportions; only the right arm up when throwing
-- **Intuitive Controls**: Drag-and-release to aim and throw
-- **Night Sky**: Beautiful gradient, static stars, moon, and building depth
-- **Building Variety**: 3D effects, static windows, rooftop antennas
-- **Celebration Overlay**: Custom “Congratulations” screen
-- **Modern UI**: Floating cards for info and instructions
-- **Expandable Sections**: Keyboard-accessible “How to Play”, “History”, etc.
-- **Accessibility**: ARIA, skip links, keyboard nav for cards
-- **Zero Dependencies**: All code is vanilla JS/CSS/HTML
-- **Easy to Fork & Extend**
+- **Responsive Design:** Adapts to all screen sizes, including mobile and tablets.
+- **Procedural Cities:** Each game features a unique skyline.
+- **Animated Gorillas:** Improved proportions and expressive arms.
+- **Intuitive Controls:** Drag-and-release to aim and throw; touch and mouse supported.
+- **Night Sky:** Gradient background, static stars, and a glowing moon.
+- **Building Variety:** 3D effects, static windows, and rooftop antennas.
+- **Celebration Overlay:** Custom “Congratulations” screen for the winner.
+- **Modern UI:** Floating, expandable cards for "How to Play", "History", and "About".
+- **Accessibility:** ARIA, skip links, keyboard navigation for cards.
+- **Zero Dependencies:** All code is vanilla JS/CSS/HTML.
+- **Easy to Fork & Extend:** Modular, well-commented code.
 
 ---
 
@@ -87,8 +102,9 @@ It’s a two-player, turn-based battle—first to hit wins!
 
 ## Screenshots
 
-align="center">
-  ![Gameplay Screenshot](assets/ReadMEImages/GorillasResponsive.jpg)
+<p align="center">
+  <img src="assets/ReadMEImages/GorillasResponsive.jpg" width="600" alt="Gameplay Screenshot">
+</p>
 
 _**Add more screenshots or animated GIFs in the future for enhanced presentation!**_
 
@@ -99,7 +115,7 @@ _**Add more screenshots or animated GIFs in the future for enhanced presentation
 ### Prerequisites
 
 - A modern web browser (Chrome, Firefox, Edge, Safari)
-- _(Optional)_ VSCode Live Server extension for local dev
+- *(Optional)* VSCode Live Server extension for local dev
 
 ### Installation
 
@@ -130,16 +146,14 @@ Push to the main branch.
 Enable GitHub Pages in your repository settings (root).
 
 Your game will be live at:  
-<https://mcbonuss.github.io/p2Java-script-game/>
+https://mcbonuss.github.io/p2Java-script-game/
 
 ---
 
 ## Game Architecture
 
-The codebase is modular and designed for maintainability:
-
 - **Game State:** All runtime data is stored in a single state object.
-- **Procedural Generation:** Buildings and windows are randomly generated, using seeded functions for reproducibility if desired.
+- **Procedural Generation:** Buildings and windows are randomly generated.
 - **Rendering:** All visuals (city, gorillas, bomb) are handled via Canvas 2D API.
 - **Input:** Mouse/touch events for aiming; responsive design auto-adjusts controls.
 - **UI:** Info cards and overlays use semantic HTML/CSS and are ARIA-labelled for accessibility.
@@ -170,11 +184,11 @@ The game logic, rendering, and UI code are clearly separated for easy onboarding
 
 ## Main Components
 
-- **index.html:** Game canvas and all UI elements; also includes info overlays and cards
-- **css/style.css:** Main styling for layout, UI, and canvas visuals
-- **assets/js/scripts.js:** All gameplay, rendering, input, and logic
-- **assets/ReadMEImages/:** Documentation assets/screenshots
-- **screenshots/:** (Add gameplay screenshots and GIFs here)
+- **index.html:** Game canvas and all UI elements; also includes info overlays and cards.
+- **css/style.css:** Main styling for layout, UI, and canvas visuals.
+- **assets/js/scripts.js:** All gameplay, rendering, input, and logic.
+- **assets/ReadMEImages/:** Documentation assets/screenshots.
+- **screenshots/:** (Add gameplay screenshots and GIFs here.)
 
 ---
 
@@ -198,8 +212,6 @@ Rotate your device to landscape for the best experience.
 
 ## Extensibility & Customisation
 
-Want to add your own twist? Here’s how:
-
 **Add new features:**
 
 - Wind or weather: Modify the bomb’s physics in `moveBomb()`.
@@ -222,14 +234,14 @@ All main code is in `/assets/js/scripts.js` and is thoroughly commented for ease
 
 ## Recent Changes & Updates
 
-- **Night sky** with a realistic moon and static stars
-- **More building variety**, 3D shading, rooftop details
-- **Improved gorilla body/face proportions and animation**
-- **Enhanced celebration overlay**
-- **Static, non-flickering windows and stars** for a polished look
-- **Full ARIA/keyboard accessibility** on expandable cards
-- **Debug/development code removed** for production
-- **Updated and extended documentation**
+- **Night sky** with a realistic moon and static stars.
+- **More building variety**, 3D shading, rooftop details.
+- **Improved gorilla body/face proportions and animation.**
+- **Enhanced celebration overlay.**
+- **Static, non-flickering windows and stars** for a polished look.
+- **Full ARIA/keyboard accessibility** on expandable cards.
+- **Debug/development code removed** for production.
+- **Updated and extended documentation.**
 
 ---
 
@@ -244,16 +256,110 @@ All main code is in `/assets/js/scripts.js` and is thoroughly commented for ease
 
 ## Testing
 
+### Testing User Stories
+
+- As a player, I want to play Gorillas in my browser, on any device.
+    - Tested on Chrome, Firefox, Edge, and Safari on both desktop and mobile devices. The game loads and is playable on all.
+- As a player, I want clear, simple controls for aiming and throwing.
+    - Mouse and touch drag tested for aiming and throwing; both work as expected.
+- As a player, I want to see who is winning and get feedback when a round ends.
+    - The winner overlay appears after a successful hit; info panels update correctly.
+- As a player, I want to read about the history of Gorillas and how to play.
+    - Expandable cards for "History" and "How to Play" are accessible and readable.
+- As a developer, I want to easily understand, test, and extend the codebase.
+    - Code is modular, commented, and structured for clarity.
+
+### Code Validation
+
+- **HTML:**  
+  - [W3C Markup Validator](https://validator.w3.org/) used on `index.html`. No critical errors; minor ARIA warnings reviewed and justified for accessibility.
+- **CSS:**  
+  - [W3C CSS Validator](https://jigsaw.w3.org/css-validator/) used on `style.css`. No errors found.
+- **JavaScript:**  
+  - [JSHint](https://jshint.com/) used on `scripts.js`. No critical warnings or errors.
+
+### Accessibility
+
+- Used Lighthouse in Chrome DevTools to confirm color contrast, font size, and ARIA usage.
+- Expandable cards are keyboard accessible (tab, enter, space).
+- Skip link is present for screen readers.
+- Info panels use semantic markup.
+- Gameplay is primarily visual; further work needed for full non-visual accessibility.
+
+### Tools Testing
+
+- **Chrome DevTools:** Used for layout, responsiveness, and performance testing.
+- **Responsive Design Checker:** Confirmed layout adapts to various screen sizes and orientations.
+- **Am I Responsive?:** Used to preview the site on multiple device frames.
+
 ### Manual Testing
 
-- Cross-browser: Chrome, Firefox, Edge, Safari.
-- Mobile: iOS and Android, including device orientation handling.
-- Gameplay: All game states, win/loss detection, UI overlays.
-- Responsive resizing: Window resize during gameplay and resets.
+#### Browser Compatibility
 
-### Automated Testing
+| Browser         | Outcome                                             | Pass/Fail |
+|-----------------|-----------------------------------------------------|-----------|
+| Chrome (latest) | No appearance, responsiveness, or functionality issues. | Pass      |
+| Firefox         | No appearance, responsiveness, or functionality issues. | Pass      |
+| Edge            | No appearance, responsiveness, or functionality issues. | Pass      |
+| Safari          | No appearance, responsiveness, or functionality issues. | Pass      |
 
-- No automated tests implemented yet. All testing has been manual and exploratory.
+#### Device Compatibility
+
+| Device           | Outcome                                             | Pass/Fail |
+|------------------|-----------------------------------------------------|-----------|
+| Windows Laptop   | No issues.                                          | Pass      |
+| MacBook Pro      | No issues.                                          | Pass      |
+| iPad Pro         | No issues.                                          | Pass      |
+| iPhone (various) | No issues; landscape mode required for best play.   | Pass      |
+| Android Phone    | No issues; landscape mode required for best play.   | Pass      |
+
+#### Game Features
+
+| Feature                | Outcome                                                                 | Pass/Fail |
+|------------------------|-------------------------------------------------------------------------|-----------|
+| Game loads             | Loads quickly and displays all UI elements.                             | Pass      |
+| Drag to aim/throw      | Works with both mouse and touch.                                        | Pass      |
+| Expandable cards       | Expand/collapse smoothly, keyboard accessible.                          | Pass      |
+| Info panels            | Update correctly for each player.                                       | Pass      |
+| Winner overlay         | Displays after a successful hit.                                        | Pass      |
+| New Game button        | Resets the game and regenerates the city.                               | Pass      |
+| Responsive layout      | UI and canvas scale correctly on all tested devices and window sizes.    | Pass      |
+| Accessibility features | Skip link, ARIA labels, and keyboard navigation work as intended.        | Pass      |
+
+---
+
+**Comments:**  
+- The grab area is much easier to use after increasing its size and adding touch-action CSS.
+- The game is best played in landscape mode on mobile devices.
+- All expandable cards are visually and functionally consistent.
+
+---
+
+### Finished Product
+
+| Page / Section         | Screenshot Example                                  |
+|------------------------|-----------------------------------------------------|
+| Desktop Game           | ![Desktop version](assets/ReadMEImages/GorillasResponsive.jpg) |
+| Mobile Game            | _(Add mobile screenshot here)_                      |
+| Winner Overlay         | _(Add winner overlay screenshot here)_              |
+| Expandable Cards       | _(Add screenshot of cards expanded/collapsed)_      |
+
+---
+
+### Known Issues
+
+- Minor offset of grab area on some high-DPI screens.
+- Resizing during bomb flight may cause trajectory jumps.
+- Accessibility for non-visual users is limited.
+- Mobile touch input can be finicky on some browsers.
+
+---
+
+### Suggestions for Further Testing
+
+- Add automated tests (e.g., Playwright or Cypress) for UI and gameplay.
+- Test with screen readers for improved accessibility.
+- Test on additional mobile devices and browsers.
 
 ---
 
@@ -310,7 +416,7 @@ A: Please report it on the [GitHub Issues page](https://github.com/McBonuss/p2Ja
 
 ## Future Features
 
-- [ ] Add wind and weather effects
+- [ ] Wind & weather effects
 - [ ] Sound effects and background music
 - [ ] AI opponent for solo play
 - [ ] Score tracking and persistent leaderboards
@@ -345,11 +451,15 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) if available.
 ## Credits & Acknowledgements
 
 - Inspired by the original [QBasic Gorillas](https://en.wikipedia.org/wiki/Gorillas_(video_game))
-- UI and gameplay enhancements by [Your Name] and community contributors.
+- UI and gameplay enhancements by Russell McKeith and community contributors.
 - [MDN Web Docs](https://developer.mozilla.org/) for JavaScript and Canvas APIs
 - [Google Fonts](https://fonts.google.com/) for "Press Start 2P"
 - Special thanks to open-source contributors and testers.
 - My girlfriend and my friends for putting up with me whilst writing this.
+- Marcel my tutor.
+- [Gorillas Game in JavaScript (freeCodeCamp)](https://www.freecodecamp.org/news/gorillas-game-in-javascript/) for the inspiration on this classic
+- Tom 
+
 
 ---
 
