@@ -126,6 +126,7 @@ cd p2Java-script-game
 
 Open `index.html` in your browser, or use Live Server for auto-refresh:
 ![Live Server Plugin](assets\ReadMEImages\liveserver.jpg)
+
 ```bash
 # Mac
 open index.html
