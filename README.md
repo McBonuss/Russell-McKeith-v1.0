@@ -350,10 +350,7 @@ The most complex function has a cyclomatic complexity value of 11 while the medi
 
 | Page / Section         | Screenshot Example                                  |
 |------------------------|-----------------------------------------------------|
-| Desktop Game           | ![Desktop version](assets/ReadMEImages/GorillasResponsive.jpg) |
-| Mobile Game            | _(Add mobile screenshot here)_                      |
-| Winner Overlay         | _(Add winner overlay screenshot here)_              |
-| Expandable Cards       | _(Add screenshot of cards expanded/collapsed)_      |
+| Responsive Game           | ![Desktop version](assets/ReadMEImages/GorillasResponsive.jpg) |
 
 ---
 
