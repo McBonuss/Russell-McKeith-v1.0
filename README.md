@@ -104,7 +104,7 @@ Wireframes were sketched to ensure a clear layout for the game area, info panels
 
 ![Gameplay Screenshot](assets/ReadMEImages/GorillasResponsive.jpg)
 
-_**Add more screenshots or animated GIFs in the future for enhanced presentation!**_
+![player highlight and grab area](assets\ReadMEImages\playerhighlight.jpg)
 
 ---
 
@@ -125,7 +125,7 @@ cd p2Java-script-game
 ### Running Locally
 
 Open `index.html` in your browser, or use Live Server for auto-refresh:
-
+![Live Server Plugin](assets\ReadMEImages\liveserver.jpg)
 ```bash
 # Mac
 open index.html
@@ -271,8 +271,10 @@ All main code is in `/assets/js/scripts.js` and is thoroughly commented for ease
 
 - **HTML:**  
   - [W3C Markup Validator](https://validator.w3.org/) used on `index.html`. No critical errors; minor ARIA warnings reviewed and justified for accessibility.
+  ![W3C Result](assets\ReadMEImages\W3HTML.jpg)
 - **CSS:**  
   - [W3C CSS Validator](https://jigsaw.w3.org/css-validator/) used on `style.css`. No errors found.
+[![Valid CSS!](https://jigsaw.w3.org/css-validator/images/vcss)](https://jigsaw.w3.org/css-validator/check/referer)
 - **JavaScript:**  
   - [JSHint](https://jshint.com/) used on `scripts.js`. No critical warnings or errors.
 

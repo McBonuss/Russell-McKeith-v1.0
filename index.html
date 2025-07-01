@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gorillas</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="assets/js/scripts.js" defer></script>
   </head>
   <body>
     <a href="#game" class="skip-link">Skip to game</a>
 
-    <header class="gorilla-title" role="banner" aria-label="Game Title">
+    <header class="gorilla-title" aria-label="Game Title">
       GORILLAS
     </header>
 
-    <section class="gorilla-history-section expandable-card expanded" role="region" aria-labelledby="history-heading">
-      <div class="expandable-header" tabindex="0" aria-controls="history-content" aria-expanded="true">
-        <span id="history-heading">History of Gorillas</span>
+    <section class="gorilla-history-section expandable-card expanded" aria-labelledby="history-heading">
+      <h2 id="history-heading">History of Gorillas</h2>
+      <div class="expandable-header" role="button" tabindex="0" aria-controls="history-content" aria-expanded="true">
+        <span>History of Gorillas</span>
         <span class="expandable-arrow">&#9654;</span>
       </div>
       <div class="expandable-content" id="history-content">
@@ -61,9 +62,10 @@
       </div>
     </div>
 
-    <section class="gorilla-about-section expandable-card expanded" role="region" aria-labelledby="about-heading">
-      <div class="expandable-header" tabindex="0" aria-controls="about-content" aria-expanded="true">
-        <span id="about-heading">About This Example</span>
+    <section class="gorilla-about-section expandable-card expanded" aria-labelledby="about-heading">
+      <h2 id="about-heading">About This Example</h2>
+      <div class="expandable-header" role="button" tabindex="0" aria-controls="about-content" aria-expanded="true">
+        <span>About This Example</span>
         <span class="expandable-arrow">&#9654;</span>
       </div>
       <div class="expandable-content" id="about-content">
